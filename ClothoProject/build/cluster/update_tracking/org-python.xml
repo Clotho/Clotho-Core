@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module codename="org.python">
+    <module_version install_time="1316737008102" last="true" origin="installer" specification_version="1.0">
+        <file crc="1216944281" name="config/Modules/org-python.xml"/>
+        <file crc="2526243308" name="modules/ext/jython.jar"/>
+        <file crc="1174489033" name="modules/org-python.jar"/>
+    </module_version>
+</module>

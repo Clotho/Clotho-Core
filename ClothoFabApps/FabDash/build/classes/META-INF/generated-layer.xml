@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN"
+                            "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="org-clothocore-widget-fabdash-LogInTopComponent.shadow">
+                <!--org.clothocore.widget.fabdash.InventoryTabsTopComponent-->
+                <attr name="originalFile" stringvalue="Actions/Window/org-clothocore-widget-fabdash-LogInTopComponent.instance"/>
+            </file>
+            <file name="org-clothocore-widget-fabdash-SearchTopComponent.shadow">
+                <!--org.clothocore.widget.fabdash.SearchTopComponent-->
+                <attr name="originalFile" stringvalue="Actions/Window/org-clothocore-widget-fabdash-SearchTopComponent.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="xml">
+        <folder name="entities">
+            <folder name="org_clothocore_widget_fabdash">
+                <file name="LogIn" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
+                    <!--org.clothocore.widget.fabdash.InventoryTabsTopComponent-->
+                    <attr name="hint.originalPublicID" stringvalue="-//org.clothocore.widget.fabdash//LogIn//EN"/>
+                </file>
+                <file name="Inventory" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
+                    <!--org.clothocore.widget.fabdash.InventoryTopComponent-->
+                    <attr name="hint.originalPublicID" stringvalue="-//org.clothocore.widget.fabdash//Inventory//EN"/>
+                </file>
+                <file name="Search" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
+                    <!--org.clothocore.widget.fabdash.SearchTopComponent-->
+                    <attr name="hint.originalPublicID" stringvalue="-//org.clothocore.widget.fabdash//Search//EN"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="memory">
+            <folder name="org">
+                <folder name="clothocore">
+                    <folder name="widget">
+                        <folder name="fabdash">
+                            <file name="InventoryTabsTopComponent">
+                                <!--org.clothocore.widget.fabdash.InventoryTabsTopComponent-->
+                                <attr name="settings.providerPath" stringvalue="xml/lookups//org_clothocore_widget_fabdash/LogIn.instance"/>
+                            </file>
+                            <file name="InventoryTopComponent">
+                                <!--org.clothocore.widget.fabdash.InventoryTopComponent-->
+                                <attr name="settings.providerPath" stringvalue="xml/lookups//org_clothocore_widget_fabdash/Inventory.instance"/>
+                            </file>
+                            <file name="SearchTopComponent">
+                                <!--org.clothocore.widget.fabdash.SearchTopComponent-->
+                                <attr name="settings.providerPath" stringvalue="xml/lookups//org_clothocore_widget_fabdash/Search.instance"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+        <folder name="lookups">
+            <folder name="org_clothocore_widget_fabdash">
+                <file name="LogIn.instance">
+                    <!--org.clothocore.widget.fabdash.InventoryTabsTopComponent-->
+                    <attr
+                        methodvalue="org.netbeans.api.settings.Factory.create" name="instanceCreate"/>
+                    <attr
+                        methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/>
+                    <attr name="settings.instanceClass" stringvalue="org.clothocore.widget.fabdash.InventoryTabsTopComponent"/>
+                    <attr name="settings.instanceOf" stringvalue="org.clothocore.widget.fabdash.InventoryTabsTopComponent"/>
+                    <attr boolvalue="true" name="xmlproperties.preventStoring"/>
+                </file>
+                <file name="Inventory.instance">
+                    <!--org.clothocore.widget.fabdash.InventoryTopComponent-->
+                    <attr
+                        methodvalue="org.netbeans.api.settings.Factory.create" name="instanceCreate"/>
+                    <attr
+                        methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/>
+                    <attr name="settings.instanceClass" stringvalue="org.clothocore.widget.fabdash.InventoryTopComponent"/>
+                    <attr name="settings.instanceOf" stringvalue="org.clothocore.widget.fabdash.InventoryTopComponent"/>
+                    <attr boolvalue="true" name="xmlproperties.preventStoring"/>
+                </file>
+                <file name="Search.instance">
+                    <!--org.clothocore.widget.fabdash.SearchTopComponent-->
+                    <attr
+                        methodvalue="org.netbeans.api.settings.Factory.create" name="instanceCreate"/>
+                    <attr
+                        methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/>
+                    <attr name="settings.instanceClass" stringvalue="org.clothocore.widget.fabdash.SearchTopComponent"/>
+                    <attr name="settings.instanceOf" stringvalue="org.clothocore.widget.fabdash.SearchTopComponent"/>
+                    <attr boolvalue="true" name="xmlproperties.preventStoring"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="LogInTopComponent.settings">
+                <!--org.clothocore.widget.fabdash.InventoryTabsTopComponent--><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+<settings version="1.0">
+  <instance class="org.clothocore.widget.fabdash.InventoryTabsTopComponent"/>
+</settings>
+]]></file>
+            <file name="SearchTopComponent.settings">
+                <!--org.clothocore.widget.fabdash.SearchTopComponent--><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+<settings version="1.0">
+  <instance class="org.clothocore.widget.fabdash.SearchTopComponent"/>
+</settings>
+]]></file>
+        </folder>
+        <folder name="Modes">
+            <folder name="leftSlidingSide">
+                <file name="LogInTopComponent.wstcref">
+                    <!--org.clothocore.widget.fabdash.InventoryTabsTopComponent--><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tc-ref PUBLIC "-//NetBeans//DTD Top Component in Mode Properties 2.0//EN" "http://www.netbeans.org/dtds/tc-ref2_0.dtd">
+<tc-ref version="2.0">
+  <tc-id id="LogInTopComponent"/>
+  <state opened="true"/>
+</tc-ref>
+]]></file>
+                <file name="SearchTopComponent.wstcref">
+                    <!--org.clothocore.widget.fabdash.SearchTopComponent--><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tc-ref PUBLIC "-//NetBeans//DTD Top Component in Mode Properties 2.0//EN" "http://www.netbeans.org/dtds/tc-ref2_0.dtd">
+<tc-ref version="2.0">
+  <tc-id id="SearchTopComponent"/>
+  <state opened="true"/>
+</tc-ref>
+]]></file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="org-clothocore-widget-fabdash-LogInTopComponent.instance">
+                <!--org.clothocore.widget.fabdash.InventoryTabsTopComponent-->
+                <attr
+                    methodvalue="org.openide.windows.TopComponent.openAction" name="instanceCreate"/>
+                <attr name="component" newvalue="org.clothocore.widget.fabdash.InventoryTabsTopComponent"/>
+                <attr name="preferredID" stringvalue="LogInTopComponent"/>
+                <attr
+                    bundlevalue="org.clothocore.widget.fabdash.Bundle#CTL_LogInAction" name="displayName"/>
+            </file>
+            <file name="org-clothocore-widget-fabdash-SearchTopComponent.instance">
+                <!--org.clothocore.widget.fabdash.SearchTopComponent-->
+                <attr
+                    methodvalue="org.openide.windows.TopComponent.openAction" name="instanceCreate"/>
+                <attr name="component" newvalue="org.clothocore.widget.fabdash.SearchTopComponent"/>
+                <attr name="preferredID" stringvalue="SearchTopComponent"/>
+                <attr
+                    bundlevalue="org.clothocore.widget.fabdash.Bundle#CTL_SearchAction" name="displayName"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

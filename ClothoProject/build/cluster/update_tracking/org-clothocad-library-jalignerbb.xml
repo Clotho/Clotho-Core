@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module codename="org.clothocad.library.jalignerbb">
+    <module_version install_time="1316736991242" last="true" origin="installer" specification_version="1.0">
+        <file crc="3786428477" name="config/Modules/org-clothocad-library-jalignerbb.xml"/>
+        <file crc="1085310134" name="modules/ext/JAlignerBB.jar"/>
+        <file crc="1785724954" name="modules/org-clothocad-library-jalignerbb.jar"/>
+    </module_version>
+</module>
