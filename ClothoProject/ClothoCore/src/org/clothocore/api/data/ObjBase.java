@@ -250,7 +250,8 @@ public abstract class ObjBase implements Serializable {
                 _inDatabase = true;
                 System.out.println("successful save of " + getType() + "  " + getUUID());
                 _pullTime = new Date();
-                PhagebookListener.phagebookListener(this, oldObj);
+                //TODO fix phagebookListener
+//                PhagebookListener.phagebookListener(this, oldObj);
                 ObjBase.fireSaveListeners(new RefreshEvent(this, RefreshEvent.Condition.SAVE_SUCCESSFUL));
                 return true;
             }
