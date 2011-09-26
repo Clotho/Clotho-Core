@@ -25,6 +25,7 @@ package org.clothocore.api.data;
 import java.util.Date;
 import java.util.HashSet;
 import org.clothocore.api.core.Collector;
+import org.clothocore.api.plugin.ClothoConnection;
 
 /**
  *
@@ -54,7 +55,16 @@ public abstract class SampleData extends ObjBase {
     public Person getAuthor() {
         return Collector.getPerson( _sDataDatum._authorUUID );
     }
-
+    @Override
+    public synchronized boolean save(ClothoConnection conn) {
+        if(!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
+            if(!Collector.getCurrentUser().isAdmin()) {
+                //throw an error message
+                return false;
+            }
+        }
+        return super.save(conn);
+    }
     /**
      * Relay for Sample:SampleData XRef
      * @param asample

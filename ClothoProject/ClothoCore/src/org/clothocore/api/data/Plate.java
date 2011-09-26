@@ -333,7 +333,12 @@ public class Plate extends ObjBase {
                 return false;
             }
         }
-
+        if(!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
+            if(!Collector.getCurrentUser().isAdmin()) {
+                    System.out.println( "Current user "+this.getAuthor().getDisplayName()+ " does not have permission to modify "+this.getName() );
+                return false;
+            }
+        }
         if ( !super.save( conn ) ) {
             return false;
         }

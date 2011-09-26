@@ -50,8 +50,8 @@ public class OligoSample extends Sample {
      * @param idContainer
      * @param idPlasmid
      */
-    public OligoSample(OligoSampleDatum d) {
-        super(d);
+    public OligoSample( OligoSampleDatum d ) {
+        super( d );
         _oliDatum = d;
     }
 
@@ -63,10 +63,10 @@ public class OligoSample extends Sample {
      * @param myvolume how many uL of liquid are in the new Sample
      * @param author who is creating the Sample
      */
-    private OligoSample(Oligo myoligo, double myvolume, Person author) {
-        super(myoligo.getName(), myvolume, author, SampleType.OLIGO_SAMPLE);
+    private OligoSample( Oligo myoligo, double myvolume, Person author ) {
+        super( myoligo.getName(), myvolume, author, SampleType.OLIGO_SAMPLE );
         _oliDatum = (OligoSampleDatum) _samDatum;
-        System.out.println(myoligo.getUUID());
+        System.out.println( myoligo.getUUID());
         _oliDatum._oligoUUID = myoligo.getUUID();
 
     }
@@ -80,23 +80,23 @@ public class OligoSample extends Sample {
      * @param author
      * @return
      */
-    public static OligoSample generateOligoSample(Oligo myoligo, Container mycontainer, double myvolume, Person author) {
-        if (myoligo == null) {
+    public static OligoSample generateOligoSample( Oligo myoligo, Container mycontainer, double myvolume, Person author ) {
+        if(myoligo==null) {
             return null;
         }
-        if (mycontainer == null) {
+        if(mycontainer==null) {
             return null;
         }
-        if (mycontainer.getSample() != null) {
+        if(mycontainer.getSample()!=null) {
             return null;
         }
-        if (author == null) {
+        if(author==null) {
             return null;
         }
 
-        OligoSample ps = new OligoSample(myoligo, myvolume, author);
-
-        if (ps.PUT_SampleToContainer(mycontainer)) {
+        OligoSample ps = new OligoSample( myoligo, myvolume, author );
+        
+        if ( ps.PUT_SampleToContainer( mycontainer ) ) {
             return ps;
         }
         return null;
@@ -106,50 +106,50 @@ public class OligoSample extends Sample {
      * Recursively save all child elements and then call ObjBase to save itself.
      */
     @Override
-    public synchronized boolean save(ClothoConnection conn) {
-        System.out.println("============ Starting plasmidSample save");
-        if (!isChanged()) {
-            System.out.println("plasmidSample didn't require saving");
+    public synchronized boolean save( ClothoConnection conn ) {
+        System.out.println( "============ Starting plasmidSample save" );
+        if ( !isChanged() ) {
+            System.out.println( "plasmidSample didn't require saving" );
             return true;
         }
 
-        if (Collector.isLocal(_oliDatum._oligoUUID)) {
+        if ( Collector.isLocal( _oliDatum._oligoUUID ) ) {
             Oligo plas = getOligo();
-            if (!plas.isInDatabase()) {
-                if (!plas.save(conn)) {
+            if ( !plas.isInDatabase() ) {
+                if ( !plas.save( conn ) ) {
                     return false;
                 }
             }
         }
 
 
-        return super.save(conn);
+        return super.save( conn );
     }
 
     /* SETTERS
      * */
-    protected static ObjBase importFromHashMap(String uuid, HashMap<String, Object> objHash) {
-        String name = (String) objHash.get("name");
-        Date dateCreated = getDateFromString((String) objHash.get("_dateCreated"));
-        Date lastModified = getDateFromString((String) objHash.get("_lastModified"));
+    protected static ObjBase importFromHashMap( String uuid, HashMap<String, Object> objHash ) {
+        String name = (String) objHash.get( "name" );
+        Date dateCreated = getDateFromString( (String) objHash.get( "_dateCreated" ) );
+        Date lastModified = getDateFromString( (String) objHash.get( "_lastModified" ) );
 
-        String sdateLastUsed = (String) objHash.get("_lastUsed");
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", Locale.US);
+        String sdateLastUsed = (String) objHash.get( "_lastUsed" );
+        SimpleDateFormat sdf = new SimpleDateFormat( "dd-MMM-yyyy HH:mm:ss", Locale.US );
         Date dateLastUsed = null;
         try {
-            dateLastUsed = sdf.parse(sdateLastUsed);
-        } catch (Exception ex) {
+            dateLastUsed = sdf.parse( sdateLastUsed );
+        } catch ( Exception ex ) {
         }
 
-        String svol = (String) objHash.get("_volume");
-        double volume = Double.parseDouble(svol);
-        String sconc = (String) objHash.get("_concentration");
-        double concentration = Double.parseDouble(sconc);
-        String squal = (String) objHash.get("_quality");
-        Short quality = Short.parseShort(squal);
-        String idPerson = (String) objHash.get("_authorUUID");
-        String idContainer = (String) objHash.get("_containerUUID");
-        String idPlasmid = (String) objHash.get("_plasmidUUID");
+        String svol = (String) objHash.get( "_volume" );
+        double volume = Double.parseDouble( svol );
+        String sconc = (String) objHash.get( "_concentration" );
+        double concentration = Double.parseDouble( sconc );
+        String squal = (String) objHash.get( "_quality" );
+        Short quality = Short.parseShort( squal );
+        String idPerson = (String) objHash.get( "_authorUUID" );
+        String idContainer = (String) objHash.get( "_containerUUID" );
+        String idPlasmid = (String) objHash.get( "_plasmidUUID" );
 
         OligoSampleDatum d = new OligoSampleDatum();
 
@@ -165,45 +165,45 @@ public class OligoSample extends Sample {
         d._containerUUID = idContainer;
         d.sampleDataLinks = new HashSet<String>();
 
-        return new OligoSample(d);
+        return new OligoSample( d );
     }
 
     @Override
-    protected HashMap<String, HashMap<String, Object>> generateXml(HashMap<String, HashMap<String, Object>> allObjects) {
+    protected HashMap<String, HashMap<String, Object>> generateXml( HashMap<String, HashMap<String, Object>> allObjects ) {
         //If the hash already has the object, skip adding anything
-        if (allObjects.containsKey(getUUID())) {
+        if ( allObjects.containsKey( getUUID() ) ) {
             return allObjects;
         }
 
         //Fill in the individual fields
         HashMap<String, Object> datahash = new HashMap<String, Object>();
-        datahash.put("objType", getType().toString());
-        datahash.put("uuid", _oliDatum.uuid);
-        datahash.put("name", _oliDatum.name);
-        datahash.put("_dateCreated", getDateCreatedAsString());
-        datahash.put("_lastModified", getLastModifiedAsString());
+        datahash.put( "objType", getType().toString() );
+        datahash.put( "uuid", _oliDatum.uuid );
+        datahash.put( "name", _oliDatum.name );
+        datahash.put( "_dateCreated", getDateCreatedAsString() );
+        datahash.put( "_lastModified", getLastModifiedAsString() );
 
-        datahash.put("_volume", Double.toString(_oliDatum._volume));
-        datahash.put("_concentration", Double.toString(_oliDatum._concentration));
-        datahash.put("_quality", Short.toString(_oliDatum._quality));
-        datahash.put("_authorUUID", _oliDatum._authorUUID);
-        datahash.put("_containerUUID", _oliDatum._containerUUID);
-        datahash.put("_plasmidUUID", _oliDatum._oligoUUID);
+        datahash.put( "_volume", Double.toString( _oliDatum._volume ) );
+        datahash.put( "_concentration", Double.toString( _oliDatum._concentration ) );
+        datahash.put( "_quality", Short.toString( _oliDatum._quality ) );
+        datahash.put( "_authorUUID", _oliDatum._authorUUID );
+        datahash.put( "_containerUUID", _oliDatum._containerUUID );
+        datahash.put( "_plasmidUUID", _oliDatum._oligoUUID );
 
         String lastUsed = null;
-        if (_oliDatum._lastUsed != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", Locale.US);
-            lastUsed = sdf.format(_oliDatum._lastUsed);
+        if ( _oliDatum._lastUsed != null ) {
+            SimpleDateFormat sdf = new SimpleDateFormat( "dd-MMM-yyyy HH:mm:ss", Locale.US );
+            lastUsed = sdf.format( _oliDatum._lastUsed );
         }
-        datahash.put("_lastUsed", lastUsed);
+        datahash.put( "_lastUsed", lastUsed );
 
         //Add the HashMap to the list
-        allObjects.put(getUUID(), datahash);
+        allObjects.put( getUUID(), datahash );
 
         //Recursively gather the objects linked to this object
-        allObjects = getOligo().generateXml(allObjects);
-        allObjects = getAuthor().generateXml(allObjects);
-        allObjects = getContainer().generateXml(allObjects);
+        allObjects = getOligo().generateXml( allObjects );
+        allObjects = getAuthor().generateXml( allObjects );
+        allObjects = getContainer().generateXml( allObjects );
 
         //Return the datahash
         return allObjects;
@@ -211,8 +211,9 @@ public class OligoSample extends Sample {
 
     /* SETTERS
      */
+
     public void changeOligo(Oligo oligo) {
-        if (oligo == null) {
+        if(oligo==null) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.OLIGO_CHANGED));
         } else {
             _oliDatum._oligoUUID = oligo.getUUID();
@@ -222,15 +223,16 @@ public class OligoSample extends Sample {
 
     /* GETTERS
      */
+
     @Override
-    protected Sample duplicateTo(Container acon, Double vol) {
+    protected Sample duplicateTo( Container acon, Double vol ) {
         //private plasmidSample(plasmid myplasmid, strain mycell, double myvolume, Person author) {
-        OligoSample ps = generateOligoSample(getOligo(), acon, vol, getAuthor());
+        OligoSample ps = generateOligoSample( getOligo(), acon, vol, getAuthor() );
         return ps;
     }
 
     public Oligo getOligo() {
-        return Collector.getOligo(_oliDatum._oligoUUID);
+        return Collector.getOligo( _oliDatum._oligoUUID );
     }
 
     @Override
@@ -254,13 +256,9 @@ public class OligoSample extends Sample {
 
     /******* FIELDS *******/
     public static enum Fields {
-        AUTHOR,
+
         NAME,
         DATE_CREATED,
         LAST_MODIFIED,
-        QUALITY,
-        VOLUME,
-        CONCENTRATION,
-        LAST_USED,
-        OLIGO,}
+    }
 }

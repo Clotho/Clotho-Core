@@ -48,21 +48,21 @@ public class Strain extends ObjBase {
         super(new StrainDatum());
     }
 
-    public Strain( StrainDatum d ) {
-        super( d );
+    public Strain(StrainDatum d) {
+        super(d);
         _strDatum = d;
 
-        if ( _strDatum._riskGroup == -1 ) {
+        if (_strDatum._riskGroup == -1) {
             final Strain item = this;
             Thread bslThread = new Thread() {
 
                 @Override
                 public void run() {
-                //    changeRiskGroup();
+                    //    changeRiskGroup();
                 }
             };
             bslThread.start();
-            addSaveHold( bslThread );
+            addSaveHold(bslThread);
         }
     }
 
@@ -71,8 +71,8 @@ public class Strain extends ObjBase {
      * @param name
      * @param author
      */
-    private Strain( String name, Person author ) {
-        super( );
+    private Strain(String name, Person author) {
+        super();
         _strDatum = new StrainDatum();
         _datum = _strDatum;
         _datum.name = name;
@@ -93,8 +93,8 @@ public class Strain extends ObjBase {
      * @param author author of the Strain
      * @param parent the parent Strain of the new Strain
      */
-    public Strain( String name, Person author, Strain parent ) {
-        this( name, author );
+    public Strain(String name, Person author, Strain parent) {
+        this(name, author);
 
         _strDatum._isBasic = false; //It's a composite Strain
         _strDatum._strainType = parent.getStrainType();
@@ -112,9 +112,9 @@ public class Strain extends ObjBase {
      * @param author
      * @param genbank
      */
-    public Strain( String name, Person author, Attachment genbank, strainType type ) {
-        this( name, author );
-        if ( genbank != null ) {
+    public Strain(String name, Person author, Attachment genbank, strainType type) {
+        this(name, author);
+        if (genbank != null) {
             _strDatum._genbankFileUUID = genbank.getUUID();
         }
         _strDatum._strainType = type;
@@ -124,47 +124,47 @@ public class Strain extends ObjBase {
      * Recursively save all child elements and then call ObjBase to save itself.
      */
     @Override
-    public synchronized boolean save( ClothoConnection conn ) {
-        System.out.println( "============ Starting STRAIN save" );
-        if ( !isChanged() ) {
-            System.out.println( "strain didn't require saving" );
+    public synchronized boolean save(ClothoConnection conn) {
+        System.out.println("============ Starting STRAIN save");
+        if (!isChanged()) {
+            System.out.println("strain didn't require saving");
             return true;
         }
 
-        if ( Collector.isLocal( _strDatum._authorUUID ) ) {
+        if (Collector.isLocal(_strDatum._authorUUID)) {
             Person aut = getAuthor();
-            if ( !aut.isInDatabase() ) {
-                if ( !aut.save( conn ) ) {
+            if (!aut.isInDatabase()) {
+                if (!aut.save(conn)) {
                     return false;
                 }
             }
         }
 
-        if ( Collector.isLocal( _strDatum._genbankFileUUID ) ) {
+        if (Collector.isLocal(_strDatum._genbankFileUUID)) {
             Attachment att = getGenbankFile();
-            if ( !att.isInDatabase() ) {
-                if ( !att.save( conn ) ) {
+            if (!att.isInDatabase()) {
+                if (!att.save(conn)) {
                     return false;
                 }
             }
         }
 
-        if ( Collector.isLocal( _strDatum._parentStrain ) ) {
+        if (Collector.isLocal(_strDatum._parentStrain)) {
             Strain par = getParentStrain();
-            if ( !par.isInDatabase() ) {
-                if ( !par.save( conn ) ) {
+            if (!par.isInDatabase()) {
+                if (!par.save(conn)) {
                     return false;
                 }
             }
         }
 
 
-        if(!isInDatabase()) {
+        if (!isInDatabase()) {
             HashSet<String> notelinks = _strDatum._noteLinks;
             HashSet<String> plaslinks = _strDatum._episomeLinks;
             _strDatum._noteLinks = new HashSet<String>();
             _strDatum._episomeLinks = new HashSet<String>();
-            if(!super.save( conn )) {
+            if (!super.save(conn)) {
                 return false;
             }
             _strDatum._isChanged = true;
@@ -173,12 +173,12 @@ public class Strain extends ObjBase {
         }
 
         //Check if any notes need saving
-        for ( String noteUUID : _strDatum._noteLinks ) {
-            if ( Collector.isLocal( noteUUID ) ) {
-                Note f = Collector.getNote( noteUUID );
-                if ( f != null ) {
-                    System.out.println( f.getUUID() + f.getName() );
-                    if ( !f.save( conn ) ) {
+        for (String noteUUID : _strDatum._noteLinks) {
+            if (Collector.isLocal(noteUUID)) {
+                Note f = Collector.getNote(noteUUID);
+                if (f != null) {
+                    System.out.println(f.getUUID() + f.getName());
+                    if (!f.save(conn)) {
                         return false;
                     }
                 }
@@ -186,18 +186,24 @@ public class Strain extends ObjBase {
         }
 
         //Check if any plasmids need saving
-        for ( String plasUUID : _strDatum._episomeLinks ) {
-            if ( Collector.isLocal( plasUUID ) ) {
-                Plasmid f = Collector.getPlasmid( plasUUID );
-                if ( f != null ) {
-                    System.out.println( f.getUUID() + f.getName() );
-                    if ( !f.save( conn ) ) {
+        for (String plasUUID : _strDatum._episomeLinks) {
+            if (Collector.isLocal(plasUUID)) {
+                Plasmid f = Collector.getPlasmid(plasUUID);
+                if (f != null) {
+                    System.out.println(f.getUUID() + f.getName());
+                    if (!f.save(conn)) {
                         return false;
                     }
                 }
             }
         }
-        return super.save( conn );
+        if (!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
+            if (!Collector.getCurrentUser().isAdmin()) {
+                System.out.println("Current user " + this.getAuthor().getDisplayName() + " does not have permission to modify " + this.getName());
+                return false;
+            }
+        }
+        return super.save(conn);
     }
 
     @Override
@@ -212,73 +218,75 @@ public class Strain extends ObjBase {
     }
 
     @Override
-    public boolean addObject( ObjBase dropObject ) {
-        switch ( dropObject.getType() ) {
+    public boolean addObject(ObjBase dropObject) {
+        switch (dropObject.getType()) {
             case ATTACHMENT:
-                if ( _strDatum._genbankFileUUID != null ) {
+                if (_strDatum._genbankFileUUID != null) {
                     return false;
                 }
                 Attachment att = (Attachment) dropObject;
-                return changeGenbank( att );
+                return changeGenbank(att);
             case NOTE:
                 final Note dropNote = (Note) dropObject;
 
                 ActionListener undo = new ActionListener() {
+
                     @Override
-                    public void actionPerformed( ActionEvent e ) {
-                        _strDatum._noteLinks.remove( dropNote.getUUID() );
-                        dropNote.removeStrainRelay( Strain.this.getUUID() );
+                    public void actionPerformed(ActionEvent e) {
+                        _strDatum._noteLinks.remove(dropNote.getUUID());
+                        dropNote.removeStrainRelay(Strain.this.getUUID());
                         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
                     }
                 };
                 ActionListener redo = new ActionListener() {
+
                     @Override
-                    public void actionPerformed( ActionEvent e ) {
-                        _strDatum._noteLinks.add( dropNote.getUUID() );
-                        dropNote.addStrainRelay( Strain.this );
+                    public void actionPerformed(ActionEvent e) {
+                        _strDatum._noteLinks.add(dropNote.getUUID());
+                        dropNote.addStrainRelay(Strain.this);
                         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
                     }
                 };
-                addUndo( undo, redo );
+                addUndo(undo, redo);
 
-                _strDatum._noteLinks.add( dropNote.getUUID() );
+                _strDatum._noteLinks.add(dropNote.getUUID());
                 System.out.println("Note " + dropNote.getUUID() + " added to this strain");
-                dropNote.addStrainRelay( this );
+                dropNote.addStrainRelay(this);
                 setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
                 return true;
             case PLASMID:
-                if ( this._strDatum._isBasic ) {
+                if (this._strDatum._isBasic) {
                     return false;
                 }
 
                 final Plasmid aplas = (Plasmid) dropObject;
 
-                if ( aplas.getVector().isGenomic() ) {
+                if (aplas.getVector().isGenomic()) {
                     //THROW A DIALOG
-                    String changethis = JOptionPane.showInputDialog( "The plasmid you're adding to this strain can be genomic.  Should I add it to the genome or the cytoplasm?" );
+                    String changethis = JOptionPane.showInputDialog("The plasmid you're adding to this strain can be genomic.  Should I add it to the genome or the cytoplasm?");
                     //IF USER CHOOSES EPISOME, ADD TO EPISOME, OTHERWISE ADD A genomeModification LINK
                 }
 
                 ActionListener undo2 = new ActionListener() {
 
                     @Override
-                    public void actionPerformed( ActionEvent e ) {
-                        _strDatum._episomeLinks.remove( aplas.getUUID() );
+                    public void actionPerformed(ActionEvent e) {
+                        _strDatum._episomeLinks.remove(aplas.getUUID());
                         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.PLASMID_TO_STRAIN);
                     }
                 };
                 ActionListener redo2 = new ActionListener() {
 
                     @Override
-                    public void actionPerformed( ActionEvent e ) {
-                        _strDatum._episomeLinks.add( aplas.getUUID() );
+                    public void actionPerformed(ActionEvent e) {
+                        _strDatum._episomeLinks.add(aplas.getUUID());
                         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.PLASMID_TO_STRAIN);
                     }
                 };
-                addUndo( undo2, redo2 );
+                addUndo(undo2, redo2);
 
 
-                _strDatum._episomeLinks.add( aplas.getUUID() );
+                _strDatum._episomeLinks.add(aplas.getUUID());
                 setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.PLASMID_TO_STRAIN);
                 return true;
             default:
@@ -291,30 +299,32 @@ public class Strain extends ObjBase {
      * @param anote the Note you wish to remove
      * @return true if the Note was removed, or false if the Note wasn't there
      */
-    public boolean removeNote( final Note item ) {
+    public boolean removeNote(final Note item) {
         String uuid = item.getUUID();
-        if ( _strDatum._noteLinks.contains( uuid ) ) {
+        if (_strDatum._noteLinks.contains(uuid)) {
             ActionListener undo = new ActionListener() {
+
                 @Override
-                public void actionPerformed( ActionEvent e ) {
-                    _strDatum._noteLinks.add( item.getUUID() );
-                    item.addStrainRelay( Strain.this );
+                public void actionPerformed(ActionEvent e) {
+                    _strDatum._noteLinks.add(item.getUUID());
+                    item.addStrainRelay(Strain.this);
                     setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
                 }
             };
 
             ActionListener redo = new ActionListener() {
+
                 @Override
-                public void actionPerformed( ActionEvent e ) {
-                    _strDatum._noteLinks.remove( item.getUUID() );
-                    item.removeStrainRelay( Strain.this.getUUID() );
+                public void actionPerformed(ActionEvent e) {
+                    _strDatum._noteLinks.remove(item.getUUID());
+                    item.removeStrainRelay(Strain.this.getUUID());
                     setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
                 }
             };
-            addUndo( undo, redo );
+            addUndo(undo, redo);
 
-            _strDatum._noteLinks.remove( uuid );
-            item.removeStrainRelay( this.getUUID() );
+            _strDatum._noteLinks.remove(uuid);
+            item.removeStrainRelay(this.getUUID());
             setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
             return true;
         }
@@ -322,10 +332,10 @@ public class Strain extends ObjBase {
     }
 
     @Override
-  public void changeName( final String newname ) {
+    public void changeName(final String newname) {
         Strain existing = Strain.retrieveByName(newname);
-        if(existing!=null) {
-            if(!existing.getUUID().equals(this.getUUID())) {
+        if (existing != null) {
+            if (!existing.getUUID().equals(this.getUUID())) {
                 setChanged(RefreshEvent.Condition.NAME_CHANGED);
                 return;
             }
@@ -334,7 +344,7 @@ public class Strain extends ObjBase {
     }
 
     public void changeStrainType(strainType strainType) {
-        if(strainType==null) {
+        if (strainType == null) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.TYPE_CHANGED));
             return;
         }
@@ -343,7 +353,7 @@ public class Strain extends ObjBase {
     }
 
     public void changeParentStrain(Strain astrain) {
-        if(astrain==null) {
+        if (astrain == null) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.PARENT_STRAIN_CHANGED));
             return;
         }
@@ -351,9 +361,9 @@ public class Strain extends ObjBase {
         setChanged(RefreshEvent.Condition.PARENT_STRAIN_CHANGED);
     }
 
-    public boolean changeGenbank( Attachment att ) {
-        if ( att.getAttachmentType().equals( AttachmentType.GB ) ) {
-            addUndo( "_genbankFileUUID", _strDatum._genbankFileUUID, att.getUUID() );
+    public boolean changeGenbank(Attachment att) {
+        if (att.getAttachmentType().equals(AttachmentType.GB)) {
+            addUndo("_genbankFileUUID", _strDatum._genbankFileUUID, att.getUUID());
             _strDatum._genbankFileUUID = att.getUUID();
             setChanged(RefreshEvent.Condition.GENBANK_CHANGED);
             return true;
@@ -367,7 +377,7 @@ public class Strain extends ObjBase {
     }
 
     public void changeGenomeID(String text) {
-        if(!isBasic()) {
+        if (!isBasic()) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.GENBANK_CHANGED));
             return;
         }
@@ -381,12 +391,12 @@ public class Strain extends ObjBase {
      *
      * @param author
      */
-    public void changeAuthor( Person newauthor ) {
-        if(newauthor==null) {
+    public void changeAuthor(Person newauthor) {
+        if (newauthor == null) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.AUTHOR_CHANGED));
             return;
         }
-        addUndo( "_authorUUID", _strDatum._authorUUID, newauthor.getUUID() );
+        addUndo("_authorUUID", _strDatum._authorUUID, newauthor.getUUID());
         _strDatum._authorUUID = newauthor.getUUID();
         fireData(new RefreshEvent(this, RefreshEvent.Condition.AUTHOR_CHANGED));
     }
@@ -398,54 +408,54 @@ public class Strain extends ObjBase {
      * @param text a description of the Strain
      *
     public void changeDescription(String text) {
-        if(text==null) {
-            fireData(new RefreshEvent(this, RefreshEvent.Condition.DESCRIPTION_CHANGED));
-            return;
-        }
-        addUndo( "_description", _strDatum._description, text );
-        _strDatum._description = text;
-        fireData(new RefreshEvent(this, RefreshEvent.Condition.DESCRIPTION_CHANGED));
+    if(text==null) {
+    fireData(new RefreshEvent(this, RefreshEvent.Condition.DESCRIPTION_CHANGED));
+    return;
+    }
+    addUndo( "_description", _strDatum._description, text );
+    _strDatum._description = text;
+    fireData(new RefreshEvent(this, RefreshEvent.Condition.DESCRIPTION_CHANGED));
     }
      * */
 
     /*  NOT SURE WHAT THE CALL SHOULD BE, BUT SCENARIO IS WHERE A SAMPLE IS KNOWN TO REALLY BE SOMETHING ELSE
      * AND YOU WANT TO CHANGE THE COMPOSITION, SO YOU CREATE A NEW STRAIN AND MOVE THE LINKS TO BOTH THE SAMPLE AND THE NEW STRAIN
     public static reassociate(Sample asample, Strain newstrain) {
-
+    
     }
      */
     /**
      * Reciprocol call from strainSample
      * @param ss
      */
-    void addSample( Sample ss ) {
-        if ( ss == null ) {
+    void addSample(Sample ss) {
+        if (ss == null) {
             return;
         }
-        if ( _strDatum._sampleLinks == null ) {
+        if (_strDatum._sampleLinks == null) {
             _strDatum._sampleLinks = new HashSet<String>();
             _strDatum._isLocked = true;
         }
-        _strDatum._sampleLinks.add( ss.getUUID() );
+        _strDatum._sampleLinks.add(ss.getUUID());
     }
 
     /**
      * Remove a Sample of this Strain
      * @param ss
      */
-    public void removeSample( Sample ss ) {
-        if ( ss == null ) {
+    public void removeSample(Sample ss) {
+        if (ss == null) {
             return;
         }
-        if ( _strDatum._sampleLinks == null ) {
+        if (_strDatum._sampleLinks == null) {
             return;
         }
         //Remove the Sample
-        _strDatum._sampleLinks.remove( ss.getUUID() );
+        _strDatum._sampleLinks.remove(ss.getUUID());
         ss.deleteFromDatabase();
 
         //If the array is now empty, null and unlock it
-        if ( _strDatum._sampleLinks.size() == 0 ) {
+        if (_strDatum._sampleLinks.size() == 0) {
             _strDatum._sampleLinks = null;
             _strDatum._isLocked = false;
         }
@@ -469,11 +479,11 @@ public class Strain extends ObjBase {
      */
     public HashSet<Plasmid> getAllPlasmids() {
         HashSet<Plasmid> out = this.getEpisomalPlasmids();
-        for ( genomeModification gen : _strDatum._genModLinks ) {
+        for (genomeModification gen : _strDatum._genModLinks) {
             System.out.println("genomemodificatin gen " + gen);
             Plasmid item = gen.getPlasmid();
-            if ( item != null ) {
-                out.add( item );
+            if (item != null) {
+                out.add(item);
             }
         }
         return out;
@@ -488,57 +498,57 @@ public class Strain extends ObjBase {
      * @param p the Plasmid you wish to remove
      * @return true if a Plasmid was removed, false if none were removed
      */
-    public boolean removePlasmid( final Plasmid p ) {
+    public boolean removePlasmid(final Plasmid p) {
         String uuid = p.getUUID();
         boolean out = false;
-        if ( this._strDatum._episomeLinks.contains( uuid ) ) {
+        if (this._strDatum._episomeLinks.contains(uuid)) {
 
             ActionListener undo2 = new ActionListener() {
 
                 @Override
-                public void actionPerformed( ActionEvent e ) {
-                    _strDatum._episomeLinks.add( p.getUUID() );
+                public void actionPerformed(ActionEvent e) {
+                    _strDatum._episomeLinks.add(p.getUUID());
                     setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.PLASMID_TO_STRAIN);
                 }
             };
             ActionListener redo2 = new ActionListener() {
 
                 @Override
-                public void actionPerformed( ActionEvent e ) {
-                    _strDatum._episomeLinks.remove( p.getUUID() );
+                public void actionPerformed(ActionEvent e) {
+                    _strDatum._episomeLinks.remove(p.getUUID());
                     setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.PLASMID_TO_STRAIN);
                 }
             };
-            addUndo( undo2, redo2 );
+            addUndo(undo2, redo2);
 
-            _strDatum._episomeLinks.remove( uuid );
+            _strDatum._episomeLinks.remove(uuid);
             out = true;
         }
-        for ( final genomeModification gm : this._strDatum._genModLinks ) {
-            if ( gm._plasmidLink.equals( uuid ) ) {
+        for (final genomeModification gm : this._strDatum._genModLinks) {
+            if (gm._plasmidLink.equals(uuid)) {
                 ActionListener undo2 = new ActionListener() {
 
                     @Override
-                    public void actionPerformed( ActionEvent e ) {
-                        _strDatum._genModLinks.add( gm );
+                    public void actionPerformed(ActionEvent e) {
+                        _strDatum._genModLinks.add(gm);
                         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.PLASMID_TO_STRAIN);
                     }
                 };
                 ActionListener redo2 = new ActionListener() {
 
                     @Override
-                    public void actionPerformed( ActionEvent e ) {
-                        _strDatum._genModLinks.remove( gm );
+                    public void actionPerformed(ActionEvent e) {
+                        _strDatum._genModLinks.remove(gm);
                         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.PLASMID_TO_STRAIN);
                     }
                 };
-                addUndo( undo2, redo2 );
+                addUndo(undo2, redo2);
 
-                _strDatum._genModLinks.remove( gm );
+                _strDatum._genModLinks.remove(gm);
                 out = true;
             }
         }
-        if ( out ) {
+        if (out) {
             setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.PLASMID_TO_STRAIN);
         }
         return out;
@@ -553,27 +563,27 @@ public class Strain extends ObjBase {
      * @param genomeModification the genome modfication you wish to remove
      * @return true if a genomeModification was removed, false if not removed
      */
-    public boolean removeGenomeModfication( final genomeModification gm ) {
-        if ( _strDatum._genModLinks.contains( gm ) ) {
+    public boolean removeGenomeModfication(final genomeModification gm) {
+        if (_strDatum._genModLinks.contains(gm)) {
             ActionListener undo2 = new ActionListener() {
 
                 @Override
-                public void actionPerformed( ActionEvent e ) {
-                    _strDatum._genModLinks.add( gm );
+                public void actionPerformed(ActionEvent e) {
+                    _strDatum._genModLinks.add(gm);
                     setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
                 }
             };
             ActionListener redo2 = new ActionListener() {
 
                 @Override
-                public void actionPerformed( ActionEvent e ) {
-                    _strDatum._genModLinks.remove( gm );
+                public void actionPerformed(ActionEvent e) {
+                    _strDatum._genModLinks.remove(gm);
                     setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
                 }
             };
-            addUndo( undo2, redo2 );
+            addUndo(undo2, redo2);
 
-            _strDatum._genModLinks.remove( gm );
+            _strDatum._genModLinks.remove(gm);
             setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
             return true;
         }
@@ -586,10 +596,10 @@ public class Strain extends ObjBase {
      */
     public HashSet<Plasmid> getEpisomalPlasmids() {
         HashSet<Plasmid> out = new HashSet<Plasmid>();
-        for ( String s : this._strDatum._episomeLinks ) {
-            Plasmid item = Collector.getPlasmid( s );
-            if ( item != null ) {
-                out.add( item );
+        for (String s : this._strDatum._episomeLinks) {
+            Plasmid item = Collector.getPlasmid(s);
+            if (item != null) {
+                out.add(item);
             }
         }
         return out;
@@ -602,17 +612,17 @@ public class Strain extends ObjBase {
      */
     public HashSet<String> getAllPlasmidLinks() {
         HashSet<String> out = new HashSet<String>();
-        for ( String s : _strDatum._episomeLinks ) {
-            out.add( s );
+        for (String s : _strDatum._episomeLinks) {
+            out.add(s);
         }
-        for ( genomeModification gen : _strDatum._genModLinks ) {
-            out.add( gen.getPlasmidLink() );
+        for (genomeModification gen : _strDatum._genModLinks) {
+            out.add(gen.getPlasmidLink());
         }
         return out;
     }
 
     public HashSet<String> getEpisomalPlasmidsLinks() {
-        if(_strDatum._episomeLinks==null) {
+        if (_strDatum._episomeLinks == null) {
             return new HashSet<String>();
         }
         return _strDatum._episomeLinks;
@@ -636,10 +646,10 @@ public class Strain extends ObjBase {
      */
     public HashSet<Note> getNotes() {
         HashSet<Note> out = new HashSet<Note>();
-        for ( String f : _strDatum._noteLinks ) {
-            Note item = Collector.getNote( f );
-            if ( item != null ) {
-                out.add( item );
+        for (String f : _strDatum._noteLinks) {
+            Note item = Collector.getNote(f);
+            if (item != null) {
+                out.add(item);
             }
         }
         return out;
@@ -654,11 +664,11 @@ public class Strain extends ObjBase {
     }
 
     public Person getAuthor() {
-        return Collector.getPerson( _strDatum._authorUUID );
+        return Collector.getPerson(_strDatum._authorUUID);
     }
 
     public String getDescription() {
-        if(_strDatum._description==null) {
+        if (_strDatum._description == null) {
             return "";
         }
         return _strDatum._description;
@@ -673,10 +683,10 @@ public class Strain extends ObjBase {
      * @return the Strain from which it was composed
      */
     public Strain getParentStrain() {
-        if ( _strDatum._isBasic ) {
+        if (_strDatum._isBasic) {
             return null;
         }
-        return Collector.getStrain( _strDatum._parentStrain );
+        return Collector.getStrain(_strDatum._parentStrain);
     }
 
     /**
@@ -684,7 +694,7 @@ public class Strain extends ObjBase {
      * @return the root Strain
      */
     public Strain getRootStrain() {
-        if ( _strDatum._isBasic ) {
+        if (_strDatum._isBasic) {
             return this;
         }
         return getParentStrain();
@@ -699,14 +709,14 @@ public class Strain extends ObjBase {
      * otherwise null
      */
     public Attachment getGenbankFile() {
-        if ( _strDatum._isBasic == false ) {
+        if (_strDatum._isBasic == false) {
             return getParentStrain().getGenbankFile();
         }
 
-        if ( _strDatum._genbankFileUUID == null ) {
+        if (_strDatum._genbankFileUUID == null) {
             return null;
         }
-        return Collector.getAttachment( _strDatum._genbankFileUUID );
+        return Collector.getAttachment(_strDatum._genbankFileUUID);
     }
 
     public strainType getStrainType() {
@@ -722,17 +732,17 @@ public class Strain extends ObjBase {
         return false;
     }
 
-    public static Strain retrieveByName( String name ) {
-        if ( name.length() == 0 ) {
+    public static Strain retrieveByName(String name) {
+        if (name.length() == 0) {
             return null;
         }
-        ClothoQuery cq = Hub.defaultConnection.createQuery( ObjType.STRAIN );
-        cq.eq( Strain.Fields.NAME, name );
+        ClothoQuery cq = Hub.defaultConnection.createQuery(ObjType.STRAIN);
+        cq.eq(Strain.Fields.NAME, name);
         List l = cq.getResults();
-        if ( l.isEmpty() ) {
+        if (l.isEmpty()) {
             return null;
         }
-        Strain p = (Strain) l.get( 0 );
+        Strain p = (Strain) l.get(0);
         return p;
     }
 
@@ -750,31 +760,31 @@ public class Strain extends ObjBase {
      * @param end end of the sequence in ccordinates of the reference genbank file
      * @param revcomp whether the sequence is reverse complemented relative to the reference genbank file
      */
-    public boolean addGenomeModification( Plasmid aplas, int start, int end, boolean revcomp ) {
-        if ( getGenbankFile() == null ) {
+    public boolean addGenomeModification(Plasmid aplas, int start, int end, boolean revcomp) {
+        if (getGenbankFile() == null) {
             //   return false;
         }
-        final genomeModification gm = new genomeModification( aplas.getUUID(), start, end, revcomp );
+        final genomeModification gm = new genomeModification(aplas.getUUID(), start, end, revcomp);
 
         ActionListener undo = new ActionListener() {
 
             @Override
-            public void actionPerformed( ActionEvent e ) {
-                _strDatum._genModLinks.remove( gm );
+            public void actionPerformed(ActionEvent e) {
+                _strDatum._genModLinks.remove(gm);
                 setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
             }
         };
         ActionListener redo = new ActionListener() {
 
             @Override
-            public void actionPerformed( ActionEvent e ) {
-                _strDatum._genModLinks.add( gm );
+            public void actionPerformed(ActionEvent e) {
+                _strDatum._genModLinks.add(gm);
                 setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
             }
         };
-        addUndo( undo, redo );
+        addUndo(undo, redo);
 
-        this._strDatum._genModLinks.add( gm );
+        this._strDatum._genModLinks.add(gm);
         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
         return true;
     }
@@ -789,32 +799,31 @@ public class Strain extends ObjBase {
      * @param end end of the sequence in ccordinates of the reference genbank file
      * @param revcomp whether the sequence is reverse complemented relative to the reference genbank file
      */
-    public boolean addGenomeModification( Plasmid aplas ) {
-        final genomeModification gm = new genomeModification( aplas.getUUID(), -1, -1, false );
+    public boolean addGenomeModification(Plasmid aplas) {
+        final genomeModification gm = new genomeModification(aplas.getUUID(), -1, -1, false);
 
         ActionListener undo = new ActionListener() {
 
             @Override
-            public void actionPerformed( ActionEvent e ) {
-                _strDatum._genModLinks.remove( gm );
+            public void actionPerformed(ActionEvent e) {
+                _strDatum._genModLinks.remove(gm);
                 setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
             }
         };
         ActionListener redo = new ActionListener() {
 
             @Override
-            public void actionPerformed( ActionEvent e ) {
-                _strDatum._genModLinks.add( gm );
+            public void actionPerformed(ActionEvent e) {
+                _strDatum._genModLinks.add(gm);
                 setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
             }
         };
-        addUndo( undo, redo );
+        addUndo(undo, redo);
 
-        _strDatum._genModLinks.add( gm );
+        _strDatum._genModLinks.add(gm);
         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
         return true;
     }
-
 
     public String getGenomeID() {
         return _strDatum._genomeId;
@@ -829,7 +838,7 @@ public class Strain extends ObjBase {
          * @param end
          * @param revcomp
          */
-        public genomeModification( String plasuuid, int start, int end, boolean revcomp ) {
+        public genomeModification(String plasuuid, int start, int end, boolean revcomp) {
             _plasmidLink = plasuuid;
             _startOnGenome = start;
             _endOnGenome = end;
@@ -837,7 +846,7 @@ public class Strain extends ObjBase {
         }
 
         public Plasmid getPlasmid() {
-            return Collector.getPlasmid( _plasmidLink );
+            return Collector.getPlasmid(_plasmidLink);
         }
 
         public String getPlasmidLink() {
@@ -856,7 +865,7 @@ public class Strain extends ObjBase {
             return _isRevComp;
         }
 
-        public void changePosition( final int start, final int end, final boolean revcomp ) {
+        public void changePosition(final int start, final int end, final boolean revcomp) {
             final int oldstart = _startOnGenome;
             final int oldend = _endOnGenome;
             final boolean oldrevComp = _isRevComp;
@@ -864,7 +873,7 @@ public class Strain extends ObjBase {
             ActionListener undo = new ActionListener() {
 
                 @Override
-                public void actionPerformed( ActionEvent e ) {
+                public void actionPerformed(ActionEvent e) {
                     _startOnGenome = oldstart;
                     _endOnGenome = oldend;
                     _isRevComp = oldrevComp;
@@ -873,21 +882,21 @@ public class Strain extends ObjBase {
             ActionListener redo = new ActionListener() {
 
                 @Override
-                public void actionPerformed( ActionEvent e ) {
+                public void actionPerformed(ActionEvent e) {
                     _startOnGenome = start;
                     _endOnGenome = end;
                     _isRevComp = revcomp;
                     _isChanged = true;
                 }
             };
-            addUndo( undo, redo );
-            redo.actionPerformed( null );
+            addUndo(undo, redo);
+            redo.actionPerformed(null);
 
             setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
         }
 
         public void autoAnnotationOnGenome() {
-            throw new UnsupportedOperationException( "Not supported yet." );
+            throw new UnsupportedOperationException("Not supported yet.");
         }
         public String _plasmidLink;
         public int _startOnGenome;
@@ -895,8 +904,6 @@ public class Strain extends ObjBase {
         public boolean _isRevComp;
         public boolean _isChanged = false;
     }
-
-
     /*-----------------
     variables
     -----------------*/
@@ -922,11 +929,11 @@ public class Strain extends ObjBase {
         public ObjType getType() {
             return ObjType.STRAIN;
         }
-
         public static final Strain staticStrain = new Strain();
     }
 
     public enum strainType {
+
         BACILLUS_SUBTILIS, ESCHERICHIA_COLI, SACCHAROMYCES_CEREVISIAE, HOMO_SAPIEN, RATTUS_RATTUS,
         MUS_MUSCULUS, MONOSIGA_BREVICOLLIS, TRICHOPLAX_ADHAERENS, SYNECHOCOCCUS_ELONGATUS, SCHIZOSACCHAROMYCES_POMBE,
         MYCOPLASMA_MYCOIDES, MESOPLASMA_FLORUM, CHLAMYDOMONAS_REINHARDTII,
@@ -948,6 +955,5 @@ public class Strain extends ObjBase {
         CHILD_STRAINS,
         GENBANK_FILE,
         AUTHOR
-
     }
 }

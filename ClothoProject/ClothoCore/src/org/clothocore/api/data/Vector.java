@@ -282,7 +282,12 @@ public class Vector extends ObjBase {
                 return false;
             }
         }
-
+        if(!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
+            if(!Collector.getCurrentUser().isAdmin()) {
+                //throw an error message
+                return;
+            }
+        }
         return super.save( conn );
     }
 

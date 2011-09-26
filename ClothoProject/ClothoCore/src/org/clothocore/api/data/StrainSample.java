@@ -49,8 +49,8 @@ public class StrainSample extends Sample {
      * @param idContainer
      * @param idStrain
      */
-    public StrainSample(StrainSampleDatum d) {
-        super(d);
+    public StrainSample( StrainSampleDatum d ) {
+        super( d );
         _strSampleDatum = d;
 
     }
@@ -63,8 +63,8 @@ public class StrainSample extends Sample {
      * @param myvolume how many uL of liquid are in the new Sample
      * @param author who is creating the Sample
      */
-    private StrainSample(Strain mystrain, double myvolume, Person author) {
-        super(mystrain.getName(), myvolume, author, SampleType.STRAIN_SAMPLE);
+    private StrainSample( Strain mystrain, double myvolume, Person author ) {
+        super( mystrain.getName(), myvolume, author, SampleType.STRAIN_SAMPLE );
         _strSampleDatum = new StrainSampleDatum();
         _samDatum = _strSampleDatum;
         _datum = _strSampleDatum;
@@ -88,9 +88,9 @@ public class StrainSample extends Sample {
      * @param author
      * @return
      */
-    public static StrainSample generateStrainSample(Strain mystrain, Container mycontainer, double myvolume, Person author) {
-        StrainSample ps = new StrainSample(mystrain, myvolume, author);
-        if (ps.PUT_SampleToContainer(mycontainer)) {
+    public static StrainSample generateStrainSample( Strain mystrain, Container mycontainer, double myvolume, Person author ) {
+        StrainSample ps = new StrainSample( mystrain, myvolume, author );
+        if ( ps.PUT_SampleToContainer( mycontainer ) ) {
             return ps;
         }
         return null;
@@ -100,50 +100,50 @@ public class StrainSample extends Sample {
      * Recursively save all child elements and then call ObjBase to save itself.
      */
     @Override
-    public synchronized boolean save(ClothoConnection conn) {
-        System.out.println("============ Starting strainSample save");
-        if (!isChanged()) {
-            System.out.println("strainSample didn't require saving");
+    public synchronized boolean save( ClothoConnection conn ) {
+        System.out.println( "============ Starting strainSample save" );
+        if ( !isChanged() ) {
+            System.out.println( "strainSample didn't require saving" );
             return true;
         }
 
-        if (Collector.isLocal(_strSampleDatum._strainUUID)) {
+        if ( Collector.isLocal( _strSampleDatum._strainUUID ) ) {
             Strain plas = getStrain();
-            if (!plas.isInDatabase()) {
-                if (!plas.save(conn)) {
+            if ( !plas.isInDatabase() ) {
+                if ( !plas.save( conn ) ) {
                     return false;
                 }
             }
         }
 
 
-        return super.save(conn);
+        return super.save( conn );
     }
 
     /* SETTERS
      * */
-    protected static ObjBase importFromHashMap(String uuid, HashMap<String, Object> objHash) {
-        String name = (String) objHash.get("name");
-        Date dateCreated = getDateFromString((String) objHash.get("_dateCreated"));
-        Date lastModified = getDateFromString((String) objHash.get("_lastModified"));
+    protected static ObjBase importFromHashMap( String uuid, HashMap<String, Object> objHash ) {
+        String name = (String) objHash.get( "name" );
+        Date dateCreated = getDateFromString( (String) objHash.get( "_dateCreated" ) );
+        Date lastModified = getDateFromString( (String) objHash.get( "_lastModified" ) );
 
-        String sdateLastUsed = (String) objHash.get("_lastUsed");
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", Locale.US);
+        String sdateLastUsed = (String) objHash.get( "_lastUsed" );
+        SimpleDateFormat sdf = new SimpleDateFormat( "dd-MMM-yyyy HH:mm:ss", Locale.US );
         Date dateLastUsed = null;
         try {
-            dateLastUsed = sdf.parse(sdateLastUsed);
-        } catch (Exception ex) {
+            dateLastUsed = sdf.parse( sdateLastUsed );
+        } catch ( Exception ex ) {
         }
 
-        String svol = (String) objHash.get("_volume");
-        double volume = Double.parseDouble(svol);
-        String sconc = (String) objHash.get("_concentration");
-        double concentration = Double.parseDouble(sconc);
-        String squal = (String) objHash.get("_quality");
-        Short quality = Short.parseShort(squal);
-        String idPerson = (String) objHash.get("_authorUUID");
-        String idContainer = (String) objHash.get("_containerUUID");
-        String idPlasmid = (String) objHash.get("_plasmidUUID");
+        String svol = (String) objHash.get( "_volume" );
+        double volume = Double.parseDouble( svol );
+        String sconc = (String) objHash.get( "_concentration" );
+        double concentration = Double.parseDouble( sconc );
+        String squal = (String) objHash.get( "_quality" );
+        Short quality = Short.parseShort( squal );
+        String idPerson = (String) objHash.get( "_authorUUID" );
+        String idContainer = (String) objHash.get( "_containerUUID" );
+        String idPlasmid = (String) objHash.get( "_plasmidUUID" );
 
         StrainSampleDatum d = new StrainSampleDatum();
 
@@ -157,45 +157,45 @@ public class StrainSample extends Sample {
         d._strainUUID = idPlasmid;
 
 
-        return new StrainSample(d);
+        return new StrainSample( d );
     }
 
     @Override
-    protected HashMap<String, HashMap<String, Object>> generateXml(HashMap<String, HashMap<String, Object>> allObjects) {
+    protected HashMap<String, HashMap<String, Object>> generateXml( HashMap<String, HashMap<String, Object>> allObjects ) {
         //If the hash already has the object, skip adding anything
-        if (allObjects.containsKey(getUUID())) {
+        if ( allObjects.containsKey( getUUID() ) ) {
             return allObjects;
         }
 
         //Fill in the individual fields
         HashMap<String, Object> datahash = new HashMap<String, Object>();
-        datahash.put("objType", getType().toString());
-        datahash.put("uuid", _strSampleDatum.uuid);
-        datahash.put("name", _strSampleDatum.name);
-        datahash.put("_dateCreated", getDateCreatedAsString());
-        datahash.put("_lastModified", getLastModifiedAsString());
+        datahash.put( "objType", getType().toString() );
+        datahash.put( "uuid", _strSampleDatum.uuid );
+        datahash.put( "name", _strSampleDatum.name );
+        datahash.put( "_dateCreated", getDateCreatedAsString() );
+        datahash.put( "_lastModified", getLastModifiedAsString() );
 
-        datahash.put("_volume", Double.toString(_strSampleDatum._volume));
-        datahash.put("_concentration", Double.toString(_strSampleDatum._concentration));
-        datahash.put("_quality", Short.toString(_strSampleDatum._quality));
-        datahash.put("_authorUUID", _strSampleDatum._authorUUID);
-        datahash.put("_containerUUID", _strSampleDatum._containerUUID);
-        datahash.put("_plasmidUUID", _strSampleDatum._strainUUID);
+        datahash.put( "_volume", Double.toString( _strSampleDatum._volume ) );
+        datahash.put( "_concentration", Double.toString( _strSampleDatum._concentration ) );
+        datahash.put( "_quality", Short.toString( _strSampleDatum._quality ) );
+        datahash.put( "_authorUUID", _strSampleDatum._authorUUID );
+        datahash.put( "_containerUUID", _strSampleDatum._containerUUID );
+        datahash.put( "_plasmidUUID", _strSampleDatum._strainUUID );
 
         String lastUsed = null;
-        if (_strSampleDatum._lastUsed != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", Locale.US);
-            lastUsed = sdf.format(_strSampleDatum._lastUsed);
+        if ( _strSampleDatum._lastUsed != null ) {
+            SimpleDateFormat sdf = new SimpleDateFormat( "dd-MMM-yyyy HH:mm:ss", Locale.US );
+            lastUsed = sdf.format( _strSampleDatum._lastUsed );
         }
-        datahash.put("_lastUsed", lastUsed);
+        datahash.put( "_lastUsed", lastUsed );
 
         //Add the HashMap to the list
-        allObjects.put(getUUID(), datahash);
+        allObjects.put( getUUID(), datahash );
 
         //Recursively gather the objects linked to this object
-        allObjects = getStrain().generateXml(allObjects);
-        allObjects = getAuthor().generateXml(allObjects);
-        allObjects = getContainer().generateXml(allObjects);
+        allObjects = getStrain().generateXml( allObjects );
+        allObjects = getAuthor().generateXml( allObjects );
+        allObjects = getContainer().generateXml( allObjects );
 
         //Return the datahash
         return allObjects;
@@ -206,14 +206,14 @@ public class StrainSample extends Sample {
     /* GETTERS
      * */
     @Override
-    protected Sample duplicateTo(Container acon, Double vol) {
+    protected Sample duplicateTo( Container acon, Double vol ) {
         //private plasmidSample(plasmid myplasmid, Strain mycell, double myvolume, Person author) {
-        StrainSample ps = generateStrainSample(getStrain(), acon, vol, getAuthor());
+        StrainSample ps = generateStrainSample( getStrain(), acon, vol, getAuthor() );
         return ps;
     }
 
     public Strain getStrain() {
-        return Collector.getStrain(_strSampleDatum._strainUUID);
+        return Collector.getStrain( _strSampleDatum._strainUUID );
     }
 
     @Override
@@ -222,7 +222,7 @@ public class StrainSample extends Sample {
     }
 
     /*-----------------
-    variables
+         variables
     -----------------*/
     private StrainSampleDatum _strSampleDatum;
 
@@ -233,12 +233,9 @@ public class StrainSample extends Sample {
 
     /******* FIELDS *******/
     public static enum Fields {
-        AUTHOR,
+
         NAME,
         DATE_CREATED,
         LAST_MODIFIED,
-        QUALITY,
-        VOLUME,
-        CONCENTRATION,
-        LAST_USED,STRAIN}
+    }
 }

@@ -47,11 +47,11 @@ public class Feature extends ObjBase {
      * Constructor for ClothoConnections only
      * @param d
      */
-    public Feature( FeatureDatum d ) {
-        super( d );
+    public Feature(FeatureDatum d) {
+        super(d);
         _featDatum = d;
 
-        if ( _featDatum._riskGroup == -1 ) {
+        if (_featDatum._riskGroup == -1) {
             final Feature afeature = this;
             Thread bslThread = new Thread() {
 
@@ -61,7 +61,7 @@ public class Feature extends ObjBase {
                 }
             };
             bslThread.start();
-            afeature.addSaveHold( bslThread );
+            afeature.addSaveHold(bslThread);
         }
     }
 
@@ -71,8 +71,8 @@ public class Feature extends ObjBase {
      * @param seq
      * @param author
      */
-    private Feature( String name, NucSeq seq, Person author, boolean iscds ) {
-        super( );
+    private Feature(String name, NucSeq seq, Person author, boolean iscds) {
+        super();
         _featDatum = new FeatureDatum();
         _datum = _featDatum;
         _datum.name = name;
@@ -123,73 +123,73 @@ public class Feature extends ObjBase {
      * @return the new Feature object, a preexisting Feature of the same sequence, or null if the new Feature
      * was rejected for some reason.
      */
-    public static Feature generateFeature( String name, String seq, Person author, boolean iscds ) {
+    public static Feature generateFeature(String name, String seq, Person author, boolean iscds) {
         //See if a Feature with the same name already exists
-        Feature prexistingSeq = retrieveByName( name );
-        while ( prexistingSeq != null ) {
-            name = JOptionPane.showInputDialog( "A Feature named " + name + " already exists, please give me a new name." );
-            if(name==null) {
+        Feature prexistingSeq = retrieveByName(name);
+        while (prexistingSeq != null) {
+            name = JOptionPane.showInputDialog("A Feature named " + name + " already exists, please give me a new name.");
+            if (name == null) {
                 return null;
             }
-            prexistingSeq = retrieveByName( name );
+            prexistingSeq = retrieveByName(name);
         }
 
         // To find a feature who's sequence matches the above (chop off start and stop for CDS)
         String uppSeq = seq.toUpperCase();
         ClothoConnection c = Collector.getDefaultConnection();
-        ClothoQuery mainQuery = c.createQuery( ObjType.FEATURE );
-        ClothoQuery seqQuery = mainQuery.createAssociationQuery( Feature.Fields.SEQUENCE );
+        ClothoQuery mainQuery = c.createQuery(ObjType.FEATURE);
+        ClothoQuery seqQuery = mainQuery.createAssociationQuery(Feature.Fields.SEQUENCE);
         String testseq = uppSeq;
-        if(uppSeq.startsWith("ATG") || uppSeq.startsWith("GTG")) {
+        if (uppSeq.startsWith("ATG") || uppSeq.startsWith("GTG")) {
             testseq = uppSeq.substring(3);
         }
-        if(uppSeq.endsWith("TAA") || uppSeq.endsWith("TAG") || uppSeq.endsWith("TGA")) {
-            String dudly = testseq.substring(0, testseq.length()-3);
+        if (uppSeq.endsWith("TAA") || uppSeq.endsWith("TAG") || uppSeq.endsWith("TGA")) {
+            String dudly = testseq.substring(0, testseq.length() - 3);
             testseq = dudly;
         }
-        seqQuery.eq( NucSeq.Fields.SEQUENCE, testseq);
+        seqQuery.eq(NucSeq.Fields.SEQUENCE, testseq);
         List results = mainQuery.getResults();
-        if(results.size()>0) {
-            int n = JOptionPane.showConfirmDialog( null, "On " + name + " a feature with this sequence already exists.  You should try to use that feature.  Do you want to cancel this new feature?", "Feature "
-                    + "already exists", JOptionPane.YES_NO_OPTION );
-            if ( n == 0 ) {
+        if (results.size() > 0) {
+            int n = JOptionPane.showConfirmDialog(null, "On " + name + " a feature with this sequence already exists.  You should try to use that feature.  Do you want to cancel this new feature?", "Feature "
+                    + "already exists", JOptionPane.YES_NO_OPTION);
+            if (n == 0) {
                 return (Feature) results.get(0);
             }
 
             //Do a second chance to cancel
-            int m = JOptionPane.showConfirmDialog( null, "Are you sure you really want two copies of this sequence?  It isn't recommended, can I please abort this?", "Feature "
-                    + "already exists", JOptionPane.YES_NO_OPTION );
-            if ( m == 0 ) {
+            int m = JOptionPane.showConfirmDialog(null, "Are you sure you really want two copies of this sequence?  It isn't recommended, can I please abort this?", "Feature "
+                    + "already exists", JOptionPane.YES_NO_OPTION);
+            if (m == 0) {
                 return (Feature) results.get(0);
             }
         }
 
         //If it's cleared checks for preexisting features, start creating a new one
-        NucSeq nseq = new NucSeq( uppSeq );
+        NucSeq nseq = new NucSeq(uppSeq);
 
-        if(nseq.isDegenerate()) {
+        if (nseq.isDegenerate()) {
             nseq.setTransient();
             return null;
         }
 
         //If it starts with a start codon, but isn't stated as a CDS, maybe throw a warning
-        if(!iscds) {
+        if (!iscds) {
             //Check if it's a CDS in forward orientation
-            if(uppSeq.startsWith("ATG")) {
+            if (uppSeq.startsWith("ATG")) {
                 int modulus = nseq.getSeq().length() % 3;
                 int extras = nseq.getSeq().length() - modulus;
                 String translation = nseq.translate(0, extras);
-                if(translation.equals("*")) {
+                if (translation.equals("*")) {
                     System.out.println("Failed translation of " + nseq.getSeq().substring(0, extras));
                 }
                 //If the first stop codon is near the end, it might be a CDS
-                if(translation.indexOf("*") > translation.length()-3 || translation.indexOf("*")==-1) {
+                if (translation.indexOf("*") > translation.length() - 3 || translation.indexOf("*") == -1) {
                     int n = JOptionPane.showConfirmDialog(
-                        null,
-                        "Feature " + name + " might be a CDS Feature, is it?",
-                        "CDS detected",
-                        JOptionPane.YES_NO_OPTION);
-                    if(n==0) {
+                            null,
+                            "Feature " + name + " might be a CDS Feature, is it?",
+                            "CDS detected",
+                            JOptionPane.YES_NO_OPTION);
+                    if (n == 0) {
                         iscds = true;
                     }
                 }
@@ -198,21 +198,21 @@ public class Feature extends ObjBase {
             String srevcomp = nseq.revComp();
             NucSeq revcomp = new NucSeq(srevcomp);
             revcomp.setTransient();
-            if(srevcomp.startsWith("ATG")) {
+            if (srevcomp.startsWith("ATG")) {
                 int modulus = revcomp.getSeq().length() % 3;
                 int extras = revcomp.getSeq().length() - modulus;
                 String translation = revcomp.translate(0, extras);
-                if(translation.equals("*")) {
+                if (translation.equals("*")) {
                     System.out.println("Failed translation of " + nseq.getSeq().substring(0, extras));
                 }
                 //If the first stop codon is near the end, it might be a CDS
-                if(translation.indexOf("*") > translation.length()-3 || translation.indexOf("*")==-1) {
+                if (translation.indexOf("*") > translation.length() - 3 || translation.indexOf("*") == -1) {
                     int n = JOptionPane.showConfirmDialog(
-                        null,
-                        "Feature " + name + " might be a CDS Feature reverse complemented, is it?",
-                        "CDS detected",
-                        JOptionPane.YES_NO_OPTION);
-                    if(n==0) {
+                            null,
+                            "Feature " + name + " might be a CDS Feature reverse complemented, is it?",
+                            "CDS detected",
+                            JOptionPane.YES_NO_OPTION);
+                    if (n == 0) {
                         iscds = true;
                         nseq.changeSeq(revcomp.getSeq());
                     }
@@ -221,11 +221,11 @@ public class Feature extends ObjBase {
         }
 
         //If it was stated to be a CDS, make sure it's really a CDS
-        if(iscds) {
+        if (iscds) {
             System.out.println("doing iscds logic checks");
             String translation = nseq.translate(0);
             //If there's a start codon on it, chop it off
-            if(uppSeq.startsWith("ATG") || uppSeq.startsWith("GTG") || uppSeq.startsWith("TTG")) {
+            if (uppSeq.startsWith("ATG") || uppSeq.startsWith("GTG") || uppSeq.startsWith("TTG")) {
                 System.out.println("I'm chopping the start codon");
                 String tempseq = uppSeq.substring(3);
                 uppSeq = tempseq;
@@ -235,40 +235,40 @@ public class Feature extends ObjBase {
 
             //Trim the end if it's out of frame
             int extras = uppSeq.length() % 3;
-            if(extras>0) {
+            if (extras > 0) {
                 nseq.changeSeq(uppSeq.substring(0, uppSeq.length() - extras));
             }
 
             //If there's a stop codon at the end, chop it off
             translation = nseq.translate(0);
-            int nearend = translation.length()-2;
+            int nearend = translation.length() - 2;
             int end = translation.indexOf("*");
             System.out.println(translation + " near end " + nearend + " end " + end);
-            if(end > nearend) {
+            if (end > nearend) {
                 System.out.println("chopping off the stop codon");
-                nseq.changeSeq(uppSeq.substring(0, 3*(end)));
+                nseq.changeSeq(uppSeq.substring(0, 3 * (end)));
 
-            //Otherwise it doesn't translate through, so maybe dump it
-            } else if(end==-1) {
+                //Otherwise it doesn't translate through, so maybe dump it
+            } else if (end == -1) {
                 System.out.println("there was no stop codon");
             } else {
-                int n = JOptionPane.showConfirmDialog( null, "Feature " + name + " appears to contain an internal start codon.  Should I cancel?", "Internal stop "
-                        + "detected", JOptionPane.YES_NO_OPTION );
-                if(n==0) {
+                int n = JOptionPane.showConfirmDialog(null, "Feature " + name + " appears to contain an internal start codon.  Should I cancel?", "Internal stop "
+                        + "detected", JOptionPane.YES_NO_OPTION);
+                if (n == 0) {
                     nseq.setTransient();
                     return null;
                 }
             }
 
             //If the thing translates wrong, return null
-            if(nseq.translate(0).equals("*")) {
+            if (nseq.translate(0).equals("*")) {
                 nseq.setTransient();
                 return null;
             }
         }
 
 
-        final Feature afeature = new Feature( name, nseq, author, iscds );
+        final Feature afeature = new Feature(name, nseq, author, iscds);
 
         //Set the biosafety level of the new Feature
         Thread bslThread = new Thread() {
@@ -281,10 +281,10 @@ public class Feature extends ObjBase {
             }
         };
         bslThread.start();
-        afeature.addSaveHold( bslThread );
+        afeature.addSaveHold(bslThread);
 
-        nseq.setLocked( true );
-     //   NucSeq.addFeatureToTable(afeature);
+        nseq.setLocked(true);
+        //   NucSeq.addFeatureToTable(afeature);
         return afeature;
     }
 
@@ -302,58 +302,57 @@ public class Feature extends ObjBase {
      * @return
      *
     public boolean mutateFeature( String name, String seq, Person author ) {
-        String old = this.getSeq().toString();
-        String nu = "";
-        int Ncount = 0;
-
-        for ( int i = 0; i < old.length(); i++ ) {
-            if ( old.charAt( i ) == seq.charAt( i ) ) {
-                nu += old.charAt( i );
-            } else {
-                nu += 'N';
-                Ncount++;
-            }
-        }
-        if ( Ncount > 25 ) {
-            JOptionPane.showMessageDialog( null, "That sequence is pretty far from the original, I count " + Ncount + " differences.  You should make a new feature instead, or check the alignment of the new sequence.", "Error", JOptionPane.ERROR_MESSAGE );
-            return false;
-        }
-        _featDatum._seqID = new NucSeq( nu ).getUUID();
-        return true;
+    String old = this.getSeq().toString();
+    String nu = "";
+    int Ncount = 0;
+    
+    for ( int i = 0; i < old.length(); i++ ) {
+    if ( old.charAt( i ) == seq.charAt( i ) ) {
+    nu += old.charAt( i );
+    } else {
+    nu += 'N';
+    Ncount++;
     }
-*/
-
+    }
+    if ( Ncount > 25 ) {
+    JOptionPane.showMessageDialog( null, "That sequence is pretty far from the original, I count " + Ncount + " differences.  You should make a new feature instead, or check the alignment of the new sequence.", "Error", JOptionPane.ERROR_MESSAGE );
+    return false;
+    }
+    _featDatum._seqID = new NucSeq( nu ).getUUID();
+    return true;
+    }
+     */
     /**
      * Recursively save all child elements and then call ObjBase to save itself.
      */
     @Override
-    public synchronized boolean save( ClothoConnection conn ) {
-        System.out.println( "============ Starting feature save" );
-        if ( !isChanged() ) {
-            System.out.println( "feature didn't require saving" );
+    public synchronized boolean save(ClothoConnection conn) {
+        System.out.println("============ Starting feature save");
+        if (!isChanged()) {
+            System.out.println("feature didn't require saving");
             return true;
         }
 
-        if ( Collector.isLocal( _featDatum._authorUUID ) ) {
+        if (Collector.isLocal(_featDatum._authorUUID)) {
             Person aut = getAuthor();
-            if ( !aut.isInDatabase() ) {
-                if ( !aut.save( conn ) ) {
+            if (!aut.isInDatabase()) {
+                if (!aut.save(conn)) {
                     return false;
                 }
             }
         }
 
-        if ( Collector.isLocal( _featDatum._seqID ) ) {
+        if (Collector.isLocal(_featDatum._seqID)) {
             NucSeq seq = getSeq();
-            if ( !seq.save( conn ) ) {
+            if (!seq.save(conn)) {
                 return false;
             }
         }
 
-        if(!isInDatabase()) {
+        if (!isInDatabase()) {
             HashSet<String> links = _featDatum._noteLinks;
             _featDatum._noteLinks = new HashSet<String>();
-            if(!super.save( conn )) {
+            if (!super.save(conn)) {
                 return false;
             }
             _featDatum._isChanged = true;
@@ -361,19 +360,24 @@ public class Feature extends ObjBase {
         }
 
         //Check if any notes need saving
-        for ( String noteUUID : _featDatum._noteLinks ) {
-            if ( Collector.isLocal( noteUUID ) ) {
-                Note f = Collector.getNote( noteUUID );
-                if ( f != null ) {
-                    System.out.println( f.getUUID() + f.getName() );
-                    if ( !f.save( conn ) ) {
+        for (String noteUUID : _featDatum._noteLinks) {
+            if (Collector.isLocal(noteUUID)) {
+                Note f = Collector.getNote(noteUUID);
+                if (f != null) {
+                    System.out.println(f.getUUID() + f.getName());
+                    if (!f.save(conn)) {
                         return false;
                     }
                 }
             }
         }
-
-        return super.save( conn );
+        if (!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
+            if (!Collector.getCurrentUser().isAdmin()) {
+                System.out.println("Current user " + this.getAuthor().getDisplayName() + " does not have permission to modify " + this.getName());
+                return false;
+            }
+        }
+        return super.save(conn);
     }
 
     /**
@@ -382,8 +386,8 @@ public class Feature extends ObjBase {
      * @return an AWT Color object.  It won't be null;
      */
     public Color getForwardColor() {
-        if ( _featDatum.forwardColor == null ) {
-            return new Color( 125, 225, 235 );
+        if (_featDatum.forwardColor == null) {
+            return new Color(125, 225, 235);
         }
         return _featDatum.forwardColor;
     }
@@ -394,8 +398,8 @@ public class Feature extends ObjBase {
      * @return an AWT Color object.  It won't be null;
      */
     public Color getReverseColor() {
-        if ( _featDatum.reverseColor == null ) {
-            return new Color( 125, 225, 235 );
+        if (_featDatum.reverseColor == null) {
+            return new Color(125, 225, 235);
         }
         return _featDatum.reverseColor;
     }
@@ -405,14 +409,14 @@ public class Feature extends ObjBase {
      * random medium-bright color.
      */
     public void setRandomColors() {
-        int[][] intVal = new int[ 2 ][ 3 ];
-        for ( int j = 0; j < 3; j++ ) {
-            double doubVal = Math.floor( Math.random() * 155 + 100 );
+        int[][] intVal = new int[2][3];
+        for (int j = 0; j < 3; j++) {
+            double doubVal = Math.floor(Math.random() * 155 + 100);
             intVal[0][j] = (int) doubVal;
             intVal[1][j] = 255 - intVal[0][j];
         }
-        _featDatum.forwardColor = new Color( intVal[0][0], intVal[0][1], intVal[0][2] );
-        _featDatum.reverseColor = new Color( intVal[1][0], intVal[1][1], intVal[1][2] );
+        _featDatum.forwardColor = new Color(intVal[0][0], intVal[0][1], intVal[0][2]);
+        _featDatum.reverseColor = new Color(intVal[1][0], intVal[1][1], intVal[1][2]);
     }
 
     @Override
@@ -425,38 +429,38 @@ public class Feature extends ObjBase {
      * @param name the name of the desired Feature
      * @return the Feature or null if none was found
      */
-    public static Feature retrieveByName( String name ) {
-        if ( name.length() == 0 ) {
+    public static Feature retrieveByName(String name) {
+        if (name.length() == 0) {
             return null;
         }
-        ClothoQuery cq = Hub.defaultConnection.createQuery( ObjType.FEATURE );
-        cq.contains( Feature.Fields.NAME, name, false );
+        ClothoQuery cq = Hub.defaultConnection.createQuery(ObjType.FEATURE);
+        cq.contains(Feature.Fields.NAME, name, false);
         List l = cq.getResults();
-        if ( l.isEmpty() ) {
+        if (l.isEmpty()) {
             return null;
         }
-        Feature p = (Feature) l.get( 0 );
+        Feature p = (Feature) l.get(0);
         return p;
     }
 
-    protected static ObjBase importFromHashMap( String uuid, HashMap<String, Object> objHash ) {
-        String name = (String) objHash.get( "name" );
-        String description = (String) objHash.get( "_shortdescription" );
-        String featuredata = (String) objHash.get( "_featureData" );
-        String sriskGroup = (String) objHash.get( "_riskGroup" );
-        short riskGroup = Short.parseShort( sriskGroup );
-        String sforcol = (String) objHash.get( "forwardColor" );
-        int forColor = Integer.parseInt( sforcol );
-        String srevcol = (String) objHash.get( "reverseColor" );
-        int revColor = Integer.parseInt( srevcol );
-        String genbankId = (String) objHash.get( "_GenbankId" );
-        String swissprotId = (String) objHash.get( "_swissProtId" );
-        String pdbId = (String) objHash.get( "_PDBid" );
-        String authorUUID = (String) objHash.get( "_authorUUID" );
-        String nucSeqUUID = (String) objHash.get( "_seqID" );
+    protected static ObjBase importFromHashMap(String uuid, HashMap<String, Object> objHash) {
+        String name = (String) objHash.get("name");
+        String description = (String) objHash.get("_shortdescription");
+        String featuredata = (String) objHash.get("_featureData");
+        String sriskGroup = (String) objHash.get("_riskGroup");
+        short riskGroup = Short.parseShort(sriskGroup);
+        String sforcol = (String) objHash.get("forwardColor");
+        int forColor = Integer.parseInt(sforcol);
+        String srevcol = (String) objHash.get("reverseColor");
+        int revColor = Integer.parseInt(srevcol);
+        String genbankId = (String) objHash.get("_GenbankId");
+        String swissprotId = (String) objHash.get("_swissProtId");
+        String pdbId = (String) objHash.get("_PDBid");
+        String authorUUID = (String) objHash.get("_authorUUID");
+        String nucSeqUUID = (String) objHash.get("_seqID");
 
-        Date dateCreated = getDateFromString( (String) objHash.get( "_dateCreated" ) );
-        Date lastModified = getDateFromString( (String) objHash.get( "_lastModified" ) );
+        Date dateCreated = getDateFromString((String) objHash.get("_dateCreated"));
+        Date lastModified = getDateFromString((String) objHash.get("_lastModified"));
 
         //NEEDS NOTE LINKS
         //  return new Feature( uuid, name, featuredata, forColor, revColor, dateCreated, lastModified, riskGroup, genbankId, swissprotId, pdbId, authorUUID, nucSeqUUID);
@@ -464,49 +468,49 @@ public class Feature extends ObjBase {
     }
 
     @Override
-    protected HashMap<String, HashMap<String, Object>> generateXml( HashMap<String, HashMap<String, Object>> allObjects ) {
+    protected HashMap<String, HashMap<String, Object>> generateXml(HashMap<String, HashMap<String, Object>> allObjects) {
         //If the hash already has the object, skip adding anything
-        if ( allObjects.containsKey( getUUID() ) ) {
+        if (allObjects.containsKey(getUUID())) {
             return allObjects;
         }
 
         //Fill in the individual fields
         HashMap<String, Object> datahash = new HashMap<String, Object>();
-        datahash.put( "objType", getType().toString() );
-        datahash.put( "uuid", _featDatum.uuid );
-        datahash.put( "name", _featDatum.name );
-        datahash.put( "_dateCreated", getDateCreatedAsString() );
-        datahash.put( "_lastModified", getLastModifiedAsString() );
-        datahash.put( "forwardColor", Integer.toString( _featDatum.forwardColor.getRGB() ) );
-        datahash.put( "reverseColor", Integer.toString( _featDatum.reverseColor.getRGB() ) );
-        datahash.put( "_riskGroup", Integer.toString( _featDatum._riskGroup ) );
-        datahash.put( "_authorUUID", _featDatum._authorUUID );
-        datahash.put( "_featureData", _featDatum._featureData );
-        datahash.put( "_seqID", _featDatum._seqID );
-        datahash.put( "noteLinks", _featDatum._noteLinks );
-        datahash.put( "familyLinks", _featDatum._familyLinks );
-        datahash.put( "_GenbankId", this._featDatum._GenbankId );
+        datahash.put("objType", getType().toString());
+        datahash.put("uuid", _featDatum.uuid);
+        datahash.put("name", _featDatum.name);
+        datahash.put("_dateCreated", getDateCreatedAsString());
+        datahash.put("_lastModified", getLastModifiedAsString());
+        datahash.put("forwardColor", Integer.toString(_featDatum.forwardColor.getRGB()));
+        datahash.put("reverseColor", Integer.toString(_featDatum.reverseColor.getRGB()));
+        datahash.put("_riskGroup", Integer.toString(_featDatum._riskGroup));
+        datahash.put("_authorUUID", _featDatum._authorUUID);
+        datahash.put("_featureData", _featDatum._featureData);
+        datahash.put("_seqID", _featDatum._seqID);
+        datahash.put("noteLinks", _featDatum._noteLinks);
+        datahash.put("familyLinks", _featDatum._familyLinks);
+        datahash.put("_GenbankId", this._featDatum._GenbankId);
 
         //Add the HashMap to the list
-        allObjects.put( getUUID(), datahash );
+        allObjects.put(getUUID(), datahash);
 
         //Recursively gather the objects linked to this object
-        allObjects = getAuthor().generateXml( allObjects );
-        allObjects = getSeq().generateXml( allObjects );
+        allObjects = getAuthor().generateXml(allObjects);
+        allObjects = getSeq().generateXml(allObjects);
 
         //Gather up all the notes
-        if ( _featDatum._noteLinks != null ) {
-            for ( String uuid : _featDatum._noteLinks ) {
-                Note anote = Collector.getNote( uuid );
-                allObjects = anote.generateXml( allObjects );
+        if (_featDatum._noteLinks != null) {
+            for (String uuid : _featDatum._noteLinks) {
+                Note anote = Collector.getNote(uuid);
+                allObjects = anote.generateXml(allObjects);
             }
         }
 
         //Gather up all the families
-        if ( _featDatum._familyLinks != null ) {
-            for ( String uuid : _featDatum._familyLinks ) {
-                Family afam = Collector.getFamily( uuid );
-                allObjects = afam.generateXml( allObjects );
+        if (_featDatum._familyLinks != null) {
+            for (String uuid : _featDatum._familyLinks) {
+                Family afam = Collector.getFamily(uuid);
+                allObjects = afam.generateXml(allObjects);
             }
         }
 
@@ -521,33 +525,33 @@ public class Feature extends ObjBase {
      * @return true if the drop was accepted
      */
     @Override
-    public boolean addObject( ObjBase dropObject ) {
-        switch ( dropObject.getType() ) {
+    public boolean addObject(ObjBase dropObject) {
+        switch (dropObject.getType()) {
             case NOTE:
                 final Note item = (Note) dropObject;
 
                 ActionListener undo = new ActionListener() {
 
                     @Override
-                    public void actionPerformed( ActionEvent e ) {
-                        _featDatum._noteLinks.remove( item.getUUID() );
-                        item.removeFeatureRelay( Feature.this.getUUID() );
+                    public void actionPerformed(ActionEvent e) {
+                        _featDatum._noteLinks.remove(item.getUUID());
+                        item.removeFeatureRelay(Feature.this.getUUID());
                         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
                     }
                 };
                 ActionListener redo = new ActionListener() {
 
                     @Override
-                    public void actionPerformed( ActionEvent e ) {
-                        _featDatum._noteLinks.add( item.getUUID() );
-                        item.addFeatureRelay( Feature.this );
+                    public void actionPerformed(ActionEvent e) {
+                        _featDatum._noteLinks.add(item.getUUID());
+                        item.addFeatureRelay(Feature.this);
                         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
                     }
                 };
-                addUndo( undo, redo );
+                addUndo(undo, redo);
 
-                _featDatum._noteLinks.add( item.getUUID() );
-                item.addFeatureRelay( this );
+                _featDatum._noteLinks.add(item.getUUID());
+                item.addFeatureRelay(this);
                 setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
                 return true;
             case FAMILY:
@@ -557,25 +561,25 @@ public class Feature extends ObjBase {
                 ActionListener fundo = new ActionListener() {
 
                     @Override
-                    public void actionPerformed( ActionEvent e ) {
-                        _featDatum._familyLinks.remove(fitem.getUUID() );
-                        fitem.removeFeatureRelay( Feature.this.getUUID() );
+                    public void actionPerformed(ActionEvent e) {
+                        _featDatum._familyLinks.remove(fitem.getUUID());
+                        fitem.removeFeatureRelay(Feature.this.getUUID());
                         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.FAMILY_TO_FEATURE);
                     }
                 };
                 ActionListener fredo = new ActionListener() {
 
                     @Override
-                    public void actionPerformed( ActionEvent e ) {
-                        _featDatum._familyLinks.add( fitem.getUUID() );
-                        fitem.addFeatureRelay( Feature.this );
+                    public void actionPerformed(ActionEvent e) {
+                        _featDatum._familyLinks.add(fitem.getUUID());
+                        fitem.addFeatureRelay(Feature.this);
                         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.FAMILY_TO_FEATURE);
                     }
                 };
-                addUndo( fundo, fredo );
+                addUndo(fundo, fredo);
 
-                _featDatum._familyLinks.add( fitem.getUUID() );
-                fitem.addFeatureRelay( this );
+                _featDatum._familyLinks.add(fitem.getUUID());
+                fitem.addFeatureRelay(this);
                 setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.FAMILY_TO_FEATURE);
                 return true;
             default:
@@ -588,32 +592,32 @@ public class Feature extends ObjBase {
      * @param anote the Note you wish to remove
      * @return true if the Note was removed, or false if the Note wasn't there
      */
-    public boolean removeNote( final Note item ) {
+    public boolean removeNote(final Note item) {
         final Feature myself = this;
         String uuid = item.getUUID();
-        if ( this._featDatum._noteLinks.contains( uuid ) ) {
+        if (this._featDatum._noteLinks.contains(uuid)) {
             ActionListener undo = new ActionListener() {
 
                 @Override
-                public void actionPerformed( ActionEvent e ) {
-                    _featDatum._noteLinks.add( item.getUUID() );
-                    item.addFeatureRelay( myself );
+                public void actionPerformed(ActionEvent e) {
+                    _featDatum._noteLinks.add(item.getUUID());
+                    item.addFeatureRelay(myself);
                     setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
                 }
             };
             ActionListener redo = new ActionListener() {
 
                 @Override
-                public void actionPerformed( ActionEvent e ) {
-                    _featDatum._noteLinks.remove( item.getUUID() );
-                    item.removeFeatureRelay( myself.getUUID() );
+                public void actionPerformed(ActionEvent e) {
+                    _featDatum._noteLinks.remove(item.getUUID());
+                    item.removeFeatureRelay(myself.getUUID());
                     setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
                 }
             };
-            addUndo( undo, redo );
+            addUndo(undo, redo);
 
-            _featDatum._noteLinks.remove( uuid );
-            item.removeFeatureRelay( this.getUUID() );
+            _featDatum._noteLinks.remove(uuid);
+            item.removeFeatureRelay(this.getUUID());
             setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NOTE_LINKED);
             return true;
         }
@@ -625,7 +629,7 @@ public class Feature extends ObjBase {
      * @return the NucSeq for this Feature
      */
     public NucSeq getSeq() {
-        return Collector.getNucSeq( _featDatum._seqID );
+        return Collector.getNucSeq(_featDatum._seqID);
     }
 
     /* SETTERS
@@ -636,13 +640,13 @@ public class Feature extends ObjBase {
      * @param name the new name of the Feature
      */
     @Override
-    public void changeName( final String name ) {
-        Feature existingpart = Feature.retrieveByName( name );
-        if ( existingpart != null ) {
+    public void changeName(final String name) {
+        Feature existingpart = Feature.retrieveByName(name);
+        if (existingpart != null) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.NAME_CHANGED));
             return;
         }
-        super.changeName( name );;
+        super.changeName(name);;
     }
 
     /**
@@ -650,26 +654,28 @@ public class Feature extends ObjBase {
      * locked in NucSeq.  You must use this method to alter the sequence instead.
      * @param newseq the new sequence of the Feature
      */
-    public void changeSequence( final String newseq ) {
-        if ( newseq.equals( "" ) || newseq == null ) {
+    public void changeSequence(final String newseq) {
+        if (newseq.equals("") || newseq == null) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.SEQUENCE_CHANGED));
             return;
         }
 
-        final String oldseq = Collector.getNucSeq( _featDatum._seqID ).toString();
-        Collector.getNucSeq( _featDatum._seqID ).APIchangeSeq( newseq );
+        final String oldseq = Collector.getNucSeq(_featDatum._seqID).toString();
+        Collector.getNucSeq(_featDatum._seqID).APIchangeSeq(newseq);
 
         ActionListener undo = new ActionListener() {
+
             @Override
-            public void actionPerformed( ActionEvent e ) {
-                Collector.getNucSeq( _featDatum._seqID ).APIchangeSeq( oldseq );
+            public void actionPerformed(ActionEvent e) {
+                Collector.getNucSeq(_featDatum._seqID).APIchangeSeq(oldseq);
             }
         };
 
         ActionListener redo = new ActionListener() {
+
             @Override
-            public void actionPerformed( ActionEvent e ) {
-                Collector.getNucSeq( _featDatum._seqID ).APIchangeSeq( newseq );
+            public void actionPerformed(ActionEvent e) {
+                Collector.getNucSeq(_featDatum._seqID).APIchangeSeq(newseq);
             }
         };
 
@@ -677,33 +683,34 @@ public class Feature extends ObjBase {
         _featDatum._riskGroup = -1;
         final Feature item = this;
         Thread bslThread = new Thread() {
+
             @Override
             public void run() {
                 _featDatum._riskGroup = item.getSeq().performBiosafetyCheck();
             }
         };
         bslThread.start();
-        addSaveHold( bslThread );
+        addSaveHold(bslThread);
 
-        addUndo( undo, redo );
+        addUndo(undo, redo);
     }
 
     /**
      * Change the author of this Feature
      * @param author
      */
-    public void changeAuthor( Person newauthor ) {
-        if(newauthor==null) {
+    public void changeAuthor(Person newauthor) {
+        if (newauthor == null) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.AUTHOR_CHANGED));
             return;
         }
-        addUndo( "_authorUUID", _featDatum._authorUUID, newauthor.getUUID() );
+        addUndo("_authorUUID", _featDatum._authorUUID, newauthor.getUUID());
         _featDatum._authorUUID = newauthor.getUUID();
         fireData(new RefreshEvent(this, RefreshEvent.Condition.AUTHOR_CHANGED));
     }
 
     public void changeGenbankId(String newid) {
-        addUndo( "_GenbankId", _featDatum._GenbankId, newid );
+        addUndo("_GenbankId", _featDatum._GenbankId, newid);
         _featDatum._GenbankId = newid;
         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.GENBANK_CHANGED);
     }
@@ -712,27 +719,27 @@ public class Feature extends ObjBase {
      * Change the risk group of the Feature.  You can only raise the risk group.
      * @param newrg the new risk group (1 through 5)
      */
-    public final void changeRiskGroup( short newrg ) {
-        if ( newrg > _featDatum._riskGroup && newrg<=5) {
-            addUndo( "_riskGroup", _featDatum._riskGroup, newrg );
+    public final void changeRiskGroup(short newrg) {
+        if (newrg > _featDatum._riskGroup && newrg <= 5) {
+            addUndo("_riskGroup", _featDatum._riskGroup, newrg);
             _featDatum._riskGroup = newrg;
             setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.RISK_GROUP_CHANGED);
             return;
         }
         fireData(new RefreshEvent(this, RefreshEvent.Condition.RISK_GROUP_CHANGED));
-        
+
     }
 
     /**
      * Change the preferred forward color of the Feature
      * @param acolor a non-null AWT color object
      */
-    public void changeForwardColor( Color acolor ) {
-        if(acolor==null) {
+    public void changeForwardColor(Color acolor) {
+        if (acolor == null) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.COLOR_CHANGED));
             return;
         }
-        addUndo( "forwardColor", _featDatum.forwardColor, acolor );
+        addUndo("forwardColor", _featDatum.forwardColor, acolor);
         _featDatum.forwardColor = acolor;
         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.COLOR_CHANGED);
     }
@@ -741,19 +748,18 @@ public class Feature extends ObjBase {
      * Change the preferred reverse color of the Feature
      * @param acolor a non-null AWT color object
      */
-    public void changeReverseColor( Color acolor ) {
-        if(acolor==null) {
+    public void changeReverseColor(Color acolor) {
+        if (acolor == null) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.COLOR_CHANGED));
             return;
         }
-        addUndo( "reverseColor", _featDatum.reverseColor, acolor );
+        addUndo("reverseColor", _featDatum.reverseColor, acolor);
         _featDatum.reverseColor = acolor;
         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.COLOR_CHANGED);
     }
 
     /* GETTERS
      * */
-
     /**
      * Get the Author of this Feature as a UUID link.
      * @return a UUID String
@@ -783,7 +789,7 @@ public class Feature extends ObjBase {
      * @return a Person object for the Feature's author
      */
     public Person getAuthor() {
-        return Collector.getPerson( _featDatum._authorUUID );
+        return Collector.getPerson(_featDatum._authorUUID);
     }
 
     /**
@@ -816,13 +822,13 @@ public class Feature extends ObjBase {
      */
     public HashSet<Family> getFamilies() {
         HashSet<Family> out = new HashSet<Family>();
-        if ( _featDatum._familyLinks == null ) {
+        if (_featDatum._familyLinks == null) {
             return out;
         }
-        for ( String s : _featDatum._familyLinks ) {
-            Family afa = Collector.getFamily( s );
-            if ( afa != null ) {
-                out.add( afa );
+        for (String s : _featDatum._familyLinks) {
+            Family afa = Collector.getFamily(s);
+            if (afa != null) {
+                out.add(afa);
             }
         }
         return out;
@@ -834,21 +840,21 @@ public class Feature extends ObjBase {
      */
     public HashSet<Note> getNotes() {
         HashSet<Note> out = new HashSet<Note>();
-        if ( _featDatum._noteLinks == null ) {
+        if (_featDatum._noteLinks == null) {
             return out;
         }
-        for ( String s : _featDatum._noteLinks ) {
-            Note anote = Collector.getNote( s );
-            if ( anote != null ) {
-                out.add( anote );
+        for (String s : _featDatum._noteLinks) {
+            Note anote = Collector.getNote(s);
+            if (anote != null) {
+                out.add(anote);
             }
         }
         return out;
     }
 
-/*-----------------
+    /*-----------------
     variables
------------------*/
+    -----------------*/
     private FeatureDatum _featDatum;
 
     public static class FeatureDatum extends ObjBaseDatum {
