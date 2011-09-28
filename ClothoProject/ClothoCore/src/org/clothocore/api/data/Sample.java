@@ -64,7 +64,6 @@ public abstract class Sample extends ObjBase {
             case STRAIN_SAMPLE:
                 _samDatum = new StrainSample.StrainSampleDatum();
                 break;
-
         }
 
         _datum = _samDatum;
@@ -113,12 +112,7 @@ public abstract class Sample extends ObjBase {
                 }
             }
         }
-        if(!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
-            if(!Collector.getCurrentUser().isAdmin()) {
-                    System.out.println( "Current user "+this.getAuthor().getDisplayName()+ " does not have permission to modify "+this.getName() );
-                return false;
-            }
-        }
+
         return super.save( conn );
     }
 
@@ -333,7 +327,7 @@ public abstract class Sample extends ObjBase {
 
     /******* FIELDS *******/
     public static enum Fields {
-
+        AUTHOR,
         NAME,
         DATE_CREATED,
         LAST_MODIFIED,
@@ -341,5 +335,8 @@ public abstract class Sample extends ObjBase {
         VOLUME,
         CONCENTRATION,
         LAST_USED,
+        PLASMID,
+        OLIGO,
+        STRAIN
     }
 }

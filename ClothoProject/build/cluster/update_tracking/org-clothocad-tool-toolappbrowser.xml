@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module codename="org.clothocad.tool.toolappbrowser">
-    <module_version install_time="1316736997361" last="true" origin="installer" specification_version="1.0">
-        <file crc="19183083" name="config/Modules/org-clothocad-tool-toolappbrowser.xml"/>
-        <file crc="2352923473" name="modules/org-clothocad-tool-toolappbrowser.jar"/>
+    <module_version install_time="1317248336883" last="true" origin="installer" specification_version="1.0">
+        <file crc="3946120859" name="config/Modules/org-clothocad-tool-toolappbrowser.xml"/>
+        <file crc="2354107790" name="modules/org-clothocad-tool-toolappbrowser.jar"/>
     </module_version>
 </module>

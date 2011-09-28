@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module codename="org.clothocad.format.rfctencds">
-    <module_version install_time="1316737004045" last="true" origin="installer" specification_version="1.0">
-        <file crc="3660527396" name="config/Modules/org-clothocad-format-rfctencds.xml"/>
-        <file crc="2612498544" name="modules/org-clothocad-format-rfctencds.jar"/>
+    <module_version install_time="1317248381509" last="true" origin="installer" specification_version="1.0">
+        <file crc="1523136265" name="config/Modules/org-clothocad-format-rfctencds.xml"/>
+        <file crc="4273212200" name="modules/org-clothocad-format-rfctencds.jar"/>
     </module_version>
 </module>

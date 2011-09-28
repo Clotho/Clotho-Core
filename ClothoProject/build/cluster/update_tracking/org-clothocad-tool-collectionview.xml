@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module codename="org.clothocad.tool.collectionview/1">
-    <module_version install_time="1316737006003" last="true" origin="installer" specification_version="1.0">
-        <file crc="522236423" name="config/Modules/org-clothocad-tool-collectionview.xml"/>
-        <file crc="2615203474" name="modules/org-clothocad-tool-collectionview.jar"/>
+    <module_version install_time="1317248398369" last="true" origin="installer" specification_version="1.0">
+        <file crc="3696730514" name="config/Modules/org-clothocad-tool-collectionview.xml"/>
+        <file crc="1060275412" name="modules/org-clothocad-tool-collectionview.jar"/>
     </module_version>
 </module>

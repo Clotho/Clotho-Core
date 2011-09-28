@@ -20,7 +20,7 @@ PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF
 CALIFORNIA HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS..
  */
-package org.clothocore.api.data; 
+package org.clothocore.api.data;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +34,6 @@ import org.clothocore.api.dnd.RefreshEvent;
 import org.clothocore.api.plugin.ClothoConnection;
 import org.clothocore.api.plugin.ClothoConnection.ClothoQuery;
 import org.clothocore.core.Hub;
-
 
 /**
  *
@@ -56,28 +55,29 @@ public class Vector extends ObjBase {
      * @param idPerson
      * @param idNucseq
      */
-    public Vector( VectorDatum d ) {
-        super( d );
+    public Vector(VectorDatum d) {
+        super(d);
         _vecDatum = d;
 
-        if ( _vecDatum._riskGroup == -1 ) {
+        if (_vecDatum._riskGroup == -1) {
             final Vector item = this;
             Thread bslThread = new Thread() {
+
                 @Override
                 public void run() {
                     short newrg = item.getSeq().performBiosafetyCheck();
-                    if(item._vecDatum._riskGroup!=newrg) {
+                    if (item._vecDatum._riskGroup != newrg) {
                         _vecDatum._riskGroup = newrg;
                         item.setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
                     }
                 }
             };
             bslThread.start();
-            addSaveHold( bslThread );
+            addSaveHold(bslThread);
         }
     }
 
-    private Vector( String name, String desc, String seq, Format form, Person author ) {
+    private Vector(String name, String desc, String seq, Format form, Person author) {
         super();
         _vecDatum = new VectorDatum();
         _datum = _vecDatum;
@@ -89,76 +89,76 @@ public class Vector extends ObjBase {
         _vecDatum._authorUUID = author.getUUID();
         _vecDatum._formatUUID = form.getUUID();
         _vecDatum._description = desc;
-        _vecDatum._seqID = new NucSeq( seq ).getUUID();
+        _vecDatum._seqID = new NucSeq(seq).getUUID();
     }
 
-   /**
-    * Factory method for creating a new vector.
-    * @param name
-    * @param desc
-    * @param seq
-    * @param form
-    * @param author
-    * @return
-    */
-   public static Vector generateVector( String name, String desc, String seq, Format form, Person author ) {
+    /**
+     * Factory method for creating a new vector.
+     * @param name
+     * @param desc
+     * @param seq
+     * @param form
+     * @param author
+     * @return
+     */
+    public static Vector generateVector(String name, String desc, String seq, Format form, Person author) {
         //Generate a hash of the sequence and Format
-        NucSeq aseq = new NucSeq( seq );
+        NucSeq aseq = new NucSeq(seq);
         aseq.setTransient();
         String key = aseq.getSeq() + form.getUUID();
-        String uuidKey = generateUUIDAsHash( key );
+        String uuidKey = generateUUIDAsHash(key);
 
         //THIS NEEDS TO BE CHANGED--IT NEEDS TO QUERY THE HASH COLUMN OF THE TABLE, NOT PRIIMARY KEY
         //DO A QUERY FOR A PART WHOSE HASH IS THE KEY AND RETURN IT TO prexistingSeq
-        Vector prexistingSeq = retrieveByHash( uuidKey );
+        Vector prexistingSeq = retrieveByHash(uuidKey);
 
         //If this sequence/Format is already in the database, return that
-        if ( prexistingSeq != null ) {
-            int n = JOptionPane.showConfirmDialog( null, "A vector with this sequence already exists.  You should try to use that vector.  Do you want to cancel this new vector?", "Vector"
-                    + "already exists", JOptionPane.YES_NO_OPTION );
-            if ( n == 0 ) {
+        if (prexistingSeq != null) {
+            int n = JOptionPane.showConfirmDialog(null, "A vector with this sequence already exists.  You should try to use that vector.  Do you want to cancel this new vector?", "Vector"
+                    + "already exists", JOptionPane.YES_NO_OPTION);
+            if (n == 0) {
                 return prexistingSeq;
             }
 
             //Do a second chance to cancel
-            int m = JOptionPane.showConfirmDialog( null, "Are you sure you really want two copies of this sequence?  It isn't recommended, can I please abort this?", "Vector "
-                    + "already exists", JOptionPane.YES_NO_OPTION );
-            if ( m == 0 ) {
+            int m = JOptionPane.showConfirmDialog(null, "Are you sure you really want two copies of this sequence?  It isn't recommended, can I please abort this?", "Vector "
+                    + "already exists", JOptionPane.YES_NO_OPTION);
+            if (m == 0) {
                 return prexistingSeq;
             }
         }
 
         //Check to see if a Part by this hash already exists in the database
-        prexistingSeq = retrieveByName( name );
-        while ( prexistingSeq != null ) {
-            name = JOptionPane.showInputDialog( "A vector named " + name + " already exists, please give me a new name." );
-            prexistingSeq = retrieveByName( name );
+        prexistingSeq = retrieveByName(name);
+        while (prexistingSeq != null) {
+            name = JOptionPane.showInputDialog("A vector named " + name + " already exists, please give me a new name.");
+            prexistingSeq = retrieveByName(name);
         }
 
         Vector v = null;
         try {
-            v = new Vector( name, desc, seq, form, author );
-        } catch ( java.lang.NullPointerException e ) {
+            v = new Vector(name, desc, seq, form, author);
+        } catch (java.lang.NullPointerException e) {
             return null;
         }
 
-        if ( v == null ) {
+        if (v == null) {
             return null;
         }
 
         v.setTransient();
 
-        if ( !form.checkVector( v ) ) {
+        if (!form.checkVector(v)) {
             return null;
         }
 
         //If it's gotten this far it's a good Vector, so finish it up and return it
-        if ( v.getSeq().getSeq().indexOf( "." ) > -1 ) {
+        if (v.getSeq().getSeq().indexOf(".") > -1) {
             v._vecDatum._isCircular = false;
         }
         v._vecDatum._hash = uuidKey;
         v._isTransient = false;
-        v.getSeq().setLocked( true );
+        v.getSeq().setLocked(true);
 
         //Do risk group setting on a new thread
         final Vector vectorout = v;
@@ -172,7 +172,7 @@ public class Vector extends ObjBase {
             }
         };
         bslThread.start();
-        vectorout.addSaveHold( bslThread );
+        vectorout.addSaveHold(bslThread);
 
         return v;
     }
@@ -182,23 +182,23 @@ public class Vector extends ObjBase {
         return ObjType.VECTOR;
     }
 
-    protected static ObjBase importFromHashMap( String uuid, HashMap<String, Object> objHash ) {
-        String name = (String) objHash.get( "name" );
-        String description = (String) objHash.get( "_description" );
-        String hash = (String) objHash.get( "_hash" );
-        String sriskGroup = (String) objHash.get( "_riskGroup" );
-        short riskGroup = Short.parseShort( sriskGroup );
+    protected static ObjBase importFromHashMap(String uuid, HashMap<String, Object> objHash) {
+        String name = (String) objHash.get("name");
+        String description = (String) objHash.get("_description");
+        String hash = (String) objHash.get("_hash");
+        String sriskGroup = (String) objHash.get("_riskGroup");
+        short riskGroup = Short.parseShort(sriskGroup);
 
-        String idformat = (String) objHash.get( "_formatUUID" );
-        String idPerson = (String) objHash.get( "_authorUUID" );
-        String idNucseq = (String) objHash.get( "_seqID" );
-        String sccirular = (String) objHash.get( "_iscircular" );
-        boolean circular = Boolean.parseBoolean( sccirular );
-        String sgenomic = (String) objHash.get( "_isGenomic" );
-        boolean genomic = Boolean.parseBoolean( sgenomic );
+        String idformat = (String) objHash.get("_formatUUID");
+        String idPerson = (String) objHash.get("_authorUUID");
+        String idNucseq = (String) objHash.get("_seqID");
+        String sccirular = (String) objHash.get("_iscircular");
+        boolean circular = Boolean.parseBoolean(sccirular);
+        String sgenomic = (String) objHash.get("_isGenomic");
+        boolean genomic = Boolean.parseBoolean(sgenomic);
 
-        Date dateCreated = getDateFromString( (String) objHash.get( "_dateCreated" ) );
-        Date lastModified = getDateFromString( (String) objHash.get( "_lastModified" ) );
+        Date dateCreated = getDateFromString((String) objHash.get("_dateCreated"));
+        Date lastModified = getDateFromString((String) objHash.get("_lastModified"));
 
         VectorDatum d = new VectorDatum();
 
@@ -216,41 +216,41 @@ public class Vector extends ObjBase {
         d._hash = hash;
 
 
-        return new Vector( d );
+        return new Vector(d);
     }
 
     @Override
-    protected HashMap<String, HashMap<String, Object>> generateXml( HashMap<String, HashMap<String, Object>> allObjects ) {
+    protected HashMap<String, HashMap<String, Object>> generateXml(HashMap<String, HashMap<String, Object>> allObjects) {
         //If the hash already has the object, skip adding anything
-        if ( allObjects.containsKey( getUUID() ) ) {
+        if (allObjects.containsKey(getUUID())) {
             return allObjects;
         }
 
         //Fill in the individual fields
         HashMap<String, Object> datahash = new HashMap<String, Object>();
-        datahash.put( "objType", getType().toString() );
-        datahash.put( "uuid", _vecDatum.uuid );
-        datahash.put( "name", _vecDatum.name );
-        datahash.put( "_dateCreated", getDateCreatedAsString() );
-        datahash.put( "_lastModified", getLastModifiedAsString() );
+        datahash.put("objType", getType().toString());
+        datahash.put("uuid", _vecDatum.uuid);
+        datahash.put("name", _vecDatum.name);
+        datahash.put("_dateCreated", getDateCreatedAsString());
+        datahash.put("_lastModified", getLastModifiedAsString());
 
 
-        datahash.put( "_description", _vecDatum._description );
-        datahash.put( "_riskGroup", Integer.toString( _vecDatum._riskGroup ) );
-        datahash.put( "_isGenomic", Boolean.toString( _vecDatum._isGenomic ) );
-        datahash.put( "_iscircular", Boolean.toString( _vecDatum._isCircular ) );
-        datahash.put( "_formatUUID", _vecDatum._formatUUID );
-        datahash.put( "_authorUUID", _vecDatum._authorUUID );
-        datahash.put( "_seqID", _vecDatum._seqID );
-        datahash.put( "_hash", _vecDatum._hash );
+        datahash.put("_description", _vecDatum._description);
+        datahash.put("_riskGroup", Integer.toString(_vecDatum._riskGroup));
+        datahash.put("_isGenomic", Boolean.toString(_vecDatum._isGenomic));
+        datahash.put("_iscircular", Boolean.toString(_vecDatum._isCircular));
+        datahash.put("_formatUUID", _vecDatum._formatUUID);
+        datahash.put("_authorUUID", _vecDatum._authorUUID);
+        datahash.put("_seqID", _vecDatum._seqID);
+        datahash.put("_hash", _vecDatum._hash);
 
         //Add the HashMap to the list
-        allObjects.put( getUUID(), datahash );
+        allObjects.put(getUUID(), datahash);
 
         //Recursively gather the objects linked to this object
-        allObjects = getAuthor().generateXml( allObjects );
-        allObjects = getFormat().generateXml( allObjects );
-        allObjects = getSeq().generateXml( allObjects );
+        allObjects = getAuthor().generateXml(allObjects);
+        allObjects = getFormat().generateXml(allObjects);
+        allObjects = getSeq().generateXml(allObjects);
 
         //Return the datahash
         return allObjects;
@@ -260,35 +260,35 @@ public class Vector extends ObjBase {
      * Recursively save all child elements and then call ObjBase to save itself.
      */
     @Override
-    public synchronized boolean save( ClothoConnection conn ) {
-        System.out.println( "============ Starting vector save" );
-        if ( !isChanged() ) {
-            System.out.println( "vector didn't require saving" );
+    public synchronized boolean save(ClothoConnection conn) {
+        System.out.println("============ Starting vector save");
+        if (!isChanged()) {
+            System.out.println("vector didn't require saving");
             return true;
         }
 
-        if ( Collector.isLocal( _vecDatum._authorUUID ) ) {
+        if (Collector.isLocal(_vecDatum._authorUUID)) {
             Person aut = getAuthor();
-            if ( !aut.isInDatabase() ) {
-                if ( !aut.save( conn ) ) {
+            if (!aut.isInDatabase()) {
+                if (!aut.save(conn)) {
                     return false;
                 }
             }
         }
 
-        if ( Collector.isLocal( _vecDatum._seqID ) ) {
+        if (Collector.isLocal(_vecDatum._seqID)) {
             NucSeq seq = getSeq();
-            if ( !seq.save( conn ) ) {
+            if (!seq.save(conn)) {
                 return false;
             }
         }
-        if(!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
-            if(!Collector.getCurrentUser().isAdmin()) {
-                //throw an error message
-                return;
+        if (!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
+            if (!Collector.getCurrentUser().isAdmin()) {
+                System.out.println("Current user " + this.getAuthor().getDisplayName() + " does not have permission to modify " + this.getName());
+                return false;
             }
         }
-        return super.save( conn );
+        return super.save(conn);
     }
 
     public void printOutInformation() {
@@ -335,49 +335,49 @@ public class Vector extends ObjBase {
     /* PUTTERS
      * */
     @Override
-    public void changeName( final String newname ) {
+    public void changeName(final String newname) {
         Vector existing = Vector.retrieveByName(newname);
-        if(existing!=null) {
-            if(!existing.getUUID().equals(this.getUUID())) {
+        if (existing != null) {
+            if (!existing.getUUID().equals(this.getUUID())) {
                 setChanged(RefreshEvent.Condition.NAME_CHANGED);
                 return;
             }
         }
-        super.changeName( newname );
+        super.changeName(newname);
     }
 
-    public void changeShortDescription( String text ) {
-        addUndo( "_description", _vecDatum._description, text );
+    public void changeShortDescription(String text) {
+        addUndo("_description", _vecDatum._description, text);
         _vecDatum._description = text;
         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
     }
 
-    public void changeSequence( final String newseq ) {
-        if ( newseq == null ) {
+    public void changeSequence(final String newseq) {
+        if (newseq == null) {
             return;
         }
 
-        final String oldseq = Collector.getNucSeq( _vecDatum._seqID ).toString();
+        final String oldseq = Collector.getNucSeq(_vecDatum._seqID).toString();
 
-        Collector.getNucSeq( _vecDatum._seqID ).APIchangeSeq( newseq );
+        Collector.getNucSeq(_vecDatum._seqID).APIchangeSeq(newseq);
 
-        boolean isok = getFormat().checkVector( this );
-        if ( !isok ) {
-            Collector.getNucSeq( _vecDatum._seqID ).APIchangeSeq( oldseq );
+        boolean isok = getFormat().checkVector(this);
+        if (!isok) {
+            Collector.getNucSeq(_vecDatum._seqID).APIchangeSeq(oldseq);
             return;
         }
         ActionListener undo = new ActionListener() {
 
             @Override
-            public void actionPerformed( ActionEvent e ) {
-                Collector.getNucSeq( _vecDatum._seqID ).APIchangeSeq( oldseq );
+            public void actionPerformed(ActionEvent e) {
+                Collector.getNucSeq(_vecDatum._seqID).APIchangeSeq(oldseq);
             }
         };
         ActionListener redo = new ActionListener() {
 
             @Override
-            public void actionPerformed( ActionEvent e ) {
-                Collector.getNucSeq( _vecDatum._seqID ).APIchangeSeq( newseq );
+            public void actionPerformed(ActionEvent e) {
+                Collector.getNucSeq(_vecDatum._seqID).APIchangeSeq(newseq);
             }
         };
 
@@ -389,50 +389,50 @@ public class Vector extends ObjBase {
             @Override
             public void run() {
                 // setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
-                setRiskGroup( item.getSeq().performBiosafetyCheck() );
+                setRiskGroup(item.getSeq().performBiosafetyCheck());
             }
         };
         bslThread.start();
-        addSaveHold( bslThread );
+        addSaveHold(bslThread);
 
-        addUndo( undo, redo );
+        addUndo(undo, redo);
     }
 
-    public void changeFormat( Format f ) {
-        if ( f == null ) {
+    public void changeFormat(Format f) {
+        if (f == null) {
             return;
         }
 
-        boolean ok = f.checkVector( this );
-        if ( !ok ) {
+        boolean ok = f.checkVector(this);
+        if (!ok) {
             return;
         }
 
-        addUndo( "_formatUUID", _vecDatum._formatUUID, f.getUUID() );
+        addUndo("_formatUUID", _vecDatum._formatUUID, f.getUUID());
         _vecDatum._formatUUID = f.getUUID();
         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
     }
 
-    public void changeAuthor( Person newauthor ) {
-        if(newauthor==null) {
+    public void changeAuthor(Person newauthor) {
+        if (newauthor == null) {
             fireData(new RefreshEvent(this, RefreshEvent.Condition.AUTHOR_CHANGED));
             return;
         }
-        addUndo( "_authorUUID", _vecDatum._authorUUID, newauthor.getUUID() );
+        addUndo("_authorUUID", _vecDatum._authorUUID, newauthor.getUUID());
         _vecDatum._authorUUID = newauthor.getUUID();
         fireData(new RefreshEvent(this, RefreshEvent.Condition.AUTHOR_CHANGED));
     }
 
     @Override
-    public boolean addObject( ObjBase dropObject ) {
-        switch ( dropObject.getType() ) {
+    public boolean addObject(ObjBase dropObject) {
+        switch (dropObject.getType()) {
             default:
                 return false;
         }
     }
 
-    public void setGenomic( boolean b ) {
-        addUndo( "_isGenomic", _vecDatum._isGenomic, b );
+    public void setGenomic(boolean b) {
+        addUndo("_isGenomic", _vecDatum._isGenomic, b);
         _vecDatum._isGenomic = b;
         setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.NAME_CHANGED);
     }
@@ -448,7 +448,7 @@ public class Vector extends ObjBase {
     }
 
     public NucSeq getSeq() {
-        return Collector.getNucSeq( _vecDatum._seqID );
+        return Collector.getNucSeq(_vecDatum._seqID);
     }
 
     public Short getRiskGroup() {
@@ -460,11 +460,11 @@ public class Vector extends ObjBase {
     }
 
     public Person getAuthor() {
-        return Collector.getPerson( _vecDatum._authorUUID );
+        return Collector.getPerson(_vecDatum._authorUUID);
     }
 
     public Format getFormat() {
-        return Collector.getFormat( _vecDatum._formatUUID );
+        return Collector.getFormat(_vecDatum._formatUUID);
     }
 
     /**
@@ -472,13 +472,13 @@ public class Vector extends ObjBase {
      * risk group cannot be decreased from public methods.
      * @param newrg the new risk group (2, 3, 4, or 5)
      */
-    public void changeRiskGroup( Short newrg ) {
-        changeRiskGroupRelay( newrg );
+    public void changeRiskGroup(Short newrg) {
+        changeRiskGroupRelay(newrg);
     }
 
-    private void changeRiskGroupRelay( Short newrg ) {
-        if ( newrg > _vecDatum._riskGroup ) {
-            addUndo( "_riskGroup", _vecDatum._riskGroup, newrg );
+    private void changeRiskGroupRelay(Short newrg) {
+        if (newrg > _vecDatum._riskGroup) {
+            addUndo("_riskGroup", _vecDatum._riskGroup, newrg);
             _vecDatum._riskGroup = newrg;
             setChanged(RefreshEvent.Condition.RISK_GROUP_CHANGED);
             return;
@@ -492,50 +492,50 @@ public class Vector extends ObjBase {
      * call to foreign server
      * @param rg
      */
-    private void setRiskGroup( short rg ) {
-        if ( rg == 5 ) {
+    private void setRiskGroup(short rg) {
+        if (rg == 5) {
             _vecDatum._riskGroup = 5;
             return;
         }
         _vecDatum._riskGroup = rg;
 
         //Check it's features to see if any are higher RG
-        for ( Annotation an : this.getSeq().getAnnotations() ) {
+        for (Annotation an : this.getSeq().getAnnotations()) {
             Feature afeat = an.getFeature();
-            if ( afeat == null ) {
+            if (afeat == null) {
                 continue;
             }
-            if ( afeat.getRiskGroup() > _vecDatum._riskGroup ) {
+            if (afeat.getRiskGroup() > _vecDatum._riskGroup) {
                 _vecDatum._riskGroup = afeat.getRiskGroup();
             }
         }
     }
 
-    public static Vector retrieveByName( String name ) {
-        if ( name.length() == 0 ) {
+    public static Vector retrieveByName(String name) {
+        if (name.length() == 0) {
             return null;
         }
-        ClothoQuery cq = Hub.defaultConnection.createQuery( ObjType.VECTOR );
-        cq.eq( Vector.Fields.NAME, name );
+        ClothoQuery cq = Hub.defaultConnection.createQuery(ObjType.VECTOR);
+        cq.eq(Vector.Fields.NAME, name);
         List l = cq.getResults();
-        if ( l.isEmpty() ) {
+        if (l.isEmpty()) {
             return null;
         }
-        Vector p = (Vector) l.get( 0 );
+        Vector p = (Vector) l.get(0);
         return p;
     }
 
-    public static Vector retrieveByHash( String hash ) {
-        if ( hash.length() == 0 ) {
+    public static Vector retrieveByHash(String hash) {
+        if (hash.length() == 0) {
             return null;
         }
-        ClothoQuery cq = Hub.defaultConnection.createQuery( ObjType.VECTOR );
-        cq.eq( Vector.Fields.HASH, hash );
+        ClothoQuery cq = Hub.defaultConnection.createQuery(ObjType.VECTOR);
+        cq.eq(Vector.Fields.HASH, hash);
         List l = cq.getResults();
-        if ( l.isEmpty() ) {
+        if (l.isEmpty()) {
             return null;
         }
-        Vector p = (Vector) l.get( 0 );
+        Vector p = (Vector) l.get(0);
         return p;
     }
 

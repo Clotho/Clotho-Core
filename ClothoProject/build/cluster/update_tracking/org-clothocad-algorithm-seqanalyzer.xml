@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module codename="org.clothocad.algorithm.seqanalyzer">
-    <module_version install_time="1316737005562" last="true" origin="installer" specification_version="1.0">
-        <file crc="1769696013" name="config/Modules/org-clothocad-algorithm-seqanalyzer.xml"/>
-        <file crc="2601505406" name="modules/org-clothocad-algorithm-seqanalyzer.jar"/>
+    <module_version install_time="1317248395160" last="true" origin="installer" specification_version="1.0">
+        <file crc="3853365347" name="config/Modules/org-clothocad-algorithm-seqanalyzer.xml"/>
+        <file crc="2631953177" name="modules/org-clothocad-algorithm-seqanalyzer.jar"/>
     </module_version>
 </module>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module codename="org.clothocad.format.concatenateformat">
-    <module_version install_time="1316736996896" last="true" origin="installer" specification_version="1.0">
-        <file crc="3655263060" name="config/Modules/org-clothocad-format-concatenateformat.xml"/>
-        <file crc="3074021662" name="modules/org-clothocad-format-concatenateformat.jar"/>
+    <module_version install_time="1317248332973" last="true" origin="installer" specification_version="1.0">
+        <file crc="1898209753" name="config/Modules/org-clothocad-format-concatenateformat.xml"/>
+        <file crc="1892942387" name="modules/org-clothocad-format-concatenateformat.jar"/>
     </module_version>
 </module>
