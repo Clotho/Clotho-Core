@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<module codename="org.clothocad.format.spexba">
-    <module_version install_time="1317248318310" last="true" origin="installer" specification_version="1.0">
-        <file crc="125793558" name="config/Modules/org-clothocad-format-spexba.xml"/>
-        <file crc="114391162" name="modules/org-clothocad-format-spexba.jar"/>
-    </module_version>
-</module>

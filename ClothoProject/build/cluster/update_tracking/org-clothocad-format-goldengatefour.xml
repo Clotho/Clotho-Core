@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<module codename="org.clothocad.format.goldengatefour">
-    <module_version install_time="1317248321884" last="true" origin="installer" specification_version="1.0">
-        <file crc="361190980" name="config/Modules/org-clothocad-format-goldengatefour.xml"/>
-        <file crc="1202816971" name="modules/org-clothocad-format-goldengatefour.jar"/>
-    </module_version>
-</module>

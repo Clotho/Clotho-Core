@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<module codename="org.clothocad.tool.institutioneditor">
-    <module_version install_time="1317248379670" last="true" origin="installer" specification_version="1.0">
-        <file crc="3077021705" name="config/Modules/org-clothocad-tool-institutioneditor.xml"/>
-        <file crc="245302172" name="modules/org-clothocad-tool-institutioneditor.jar"/>
-    </module_version>
-</module>

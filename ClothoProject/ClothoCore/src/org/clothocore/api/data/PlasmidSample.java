@@ -280,9 +280,14 @@ public class PlasmidSample extends Sample {
 
     /******* FIELDS *******/
     public static enum Fields {
-
+        AUTHOR,
         NAME,
         DATE_CREATED,
         LAST_MODIFIED,
+        QUALITY,
+        VOLUME,
+        CONCENTRATION,
+        LAST_USED,
+        PLASMID,
     }
 }

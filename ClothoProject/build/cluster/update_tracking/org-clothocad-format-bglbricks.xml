@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<module codename="org.clothocad.format.bglbricks/1">
-    <module_version install_time="1317248383256" last="true" origin="installer" specification_version="1.0.1">
-        <file crc="858047252" name="config/Modules/org-clothocad-format-bglbricks.xml"/>
-        <file crc="1239469847" name="modules/org-clothocad-format-bglbricks.jar"/>
-    </module_version>
-</module>
