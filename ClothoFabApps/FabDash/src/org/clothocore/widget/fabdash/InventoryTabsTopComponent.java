@@ -16,6 +16,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
+import org.clothocore.api.core.Collator;
 import org.clothocore.api.core.Collector;
 import org.clothocore.api.data.Collection;
 import org.clothocore.api.data.DataListener;
@@ -53,6 +54,11 @@ public final class InventoryTabsTopComponent extends TopComponent {
 
     public InventoryTabsTopComponent() {
         initComponents();
+        if (Collator.getPreference("restrictCollection").equals("true")) {
+            restrictToUserCheckBox.setSelected(true);
+        } else {
+            restrictToUserCheckBox.setSelected(false);
+        }
         _connected = false;
 
         partsTable.addMouseListener(new MouseAdapter() {
@@ -313,18 +319,55 @@ public final class InventoryTabsTopComponent extends TopComponent {
 
         refreshButton.setFont(new java.awt.Font("Ubuntu", 0, 10));
         org.openide.awt.Mnemonics.setLocalizedText(refreshButton, org.openide.util.NbBundle.getMessage(InventoryTabsTopComponent.class, "InventoryTabsTopComponent.refreshButton.text")); // NOI18N
+        refreshButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                refreshButtonMouseEntered(evt);
+            }
+        });
         refreshButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 refreshButtonActionPerformed(evt);
             }
         });
 
-        restrictToUserCheckBox.setFont(new java.awt.Font("Ubuntu", 0, 10));
-        restrictToUserCheckBox.setSelected(true);
+        restrictToUserCheckBox.setFont(new java.awt.Font("Ubuntu", 0, 10)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(restrictToUserCheckBox, org.openide.util.NbBundle.getMessage(InventoryTabsTopComponent.class, "InventoryTabsTopComponent.restrictToUserCheckBox.text")); // NOI18N
+        restrictToUserCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                restrictToUserCheckBoxActionPerformed(evt);
+            }
+        });
+        restrictToUserCheckBox.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                restrictToUserCheckBoxPropertyChange(evt);
+            }
+        });
 
         collectionsComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         collectionsComboBox.setSelectedIndex(-1);
+        collectionsComboBox.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                collectionsComboBoxMouseClicked(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                collectionsComboBoxMouseExited(evt);
+            }
+        });
+        collectionsComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                collectionsComboBoxItemStateChanged(evt);
+            }
+        });
+        collectionsComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                collectionsComboBoxActionPerformed(evt);
+            }
+        });
+        collectionsComboBox.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                collectionsComboBoxPropertyChange(evt);
+            }
+        });
 
         javax.swing.GroupLayout inventoryPanelLayout = new javax.swing.GroupLayout(inventoryPanel);
         inventoryPanel.setLayout(inventoryPanelLayout);
@@ -333,11 +376,11 @@ public final class InventoryTabsTopComponent extends TopComponent {
             .addGroup(inventoryPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(inventoryPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(inventoryTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
+                    .addComponent(inventoryTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 344, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, inventoryPanelLayout.createSequentialGroup()
                         .addComponent(restrictToUserCheckBox)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(collectionsComboBox, 0, 156, Short.MAX_VALUE)
+                        .addComponent(collectionsComboBox, 0, 170, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(refreshButton)))
                 .addContainerGap())
@@ -391,6 +434,55 @@ private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     fetchInventoryInformation();
 }//GEN-LAST:event_refreshButtonActionPerformed
 
+    private void collectionsComboBoxPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_collectionsComboBoxPropertyChange
+    }//GEN-LAST:event_collectionsComboBoxPropertyChange
+
+    private void collectionsComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_collectionsComboBoxActionPerformed
+//        if (collectionsComboBox.getSelectedItem() != null) {
+//            Collator.putPreference("viewingCollection", collectionsComboBox.getSelectedItem().toString());
+//            System.out.println("changed to:"+Collator.getPreference("viewingCollection"));
+//        }
+    }//GEN-LAST:event_collectionsComboBoxActionPerformed
+
+    private void restrictToUserCheckBoxPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_restrictToUserCheckBoxPropertyChange
+        if (restrictToUserCheckBox.isSelected()) {
+            Collator.putPreference("restrictCollection", "true");
+        } else {
+            Collator.putPreference("restrictCollection", "false");
+        }
+    }//GEN-LAST:event_restrictToUserCheckBoxPropertyChange
+
+    private void restrictToUserCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restrictToUserCheckBoxActionPerformed
+        if (restrictToUserCheckBox.isSelected()) {
+            Collator.putPreference("restrictCollection", "true");
+        } else {
+            Collator.putPreference("restrictCollection", "false");
+        }
+    }//GEN-LAST:event_restrictToUserCheckBoxActionPerformed
+
+    private void collectionsComboBoxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collectionsComboBoxMouseClicked
+        if (collectionsComboBox.getSelectedItem() != null) {
+            Collator.putPreference("viewingCollection", collectionsComboBox.getSelectedItem().toString());
+
+        }
+    }//GEN-LAST:event_collectionsComboBoxMouseClicked
+
+    private void collectionsComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_collectionsComboBoxItemStateChanged
+    }//GEN-LAST:event_collectionsComboBoxItemStateChanged
+
+    private void collectionsComboBoxMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collectionsComboBoxMouseExited
+        if (collectionsComboBox.getSelectedItem() != null) {
+            Collator.putPreference("viewingCollection", collectionsComboBox.getSelectedItem().toString());
+
+        } 
+    }//GEN-LAST:event_collectionsComboBoxMouseExited
+
+    private void refreshButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_refreshButtonMouseEntered
+        if (collectionsComboBox.getSelectedItem() != null) {
+            Collator.putPreference("viewingCollection", collectionsComboBox.getSelectedItem().toString());
+
+        }     }//GEN-LAST:event_refreshButtonMouseEntered
+
     private void fetchInventoryInformation() {
         new SwingWorker() {
 
@@ -405,26 +497,23 @@ private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN
                 }
 
                 try {
-                    String currentSelection = null;
-                    if (collectionsComboBox.getSelectedIndex() > -1) {
-                        currentSelection = (String) collectionsComboBox.getSelectedItem();
-                    }
                     collectionsComboBox.removeAllItems();
                     ArrayList<ObjLink> allLinksOfCollections = Collector.getAllLinksOf(ObjType.COLLECTION);
                     for (ObjLink oj : allLinksOfCollections) {
                         collectionsComboBox.addItem(oj.name);
                     }
-                    if (currentSelection != null) {
-                        collectionsComboBox.setSelectedItem(currentSelection);
-                    }
-                    if (collectionsComboBox.getSelectedIndex() < 0) {
+
+                    
+                    collectionsComboBox.setSelectedItem(Collator.getPreference("viewingCollection"));
+                    if (collectionsComboBox.getSelectedIndex()<0) {
                         collectionsComboBox.setSelectedItem(Collector.getCurrentUser().getHerCollection().getName());
+                        Collator.putPreference("viewingCollection", collectionsComboBox.getSelectedItem().toString());
                     }
                     if (restrictToUserCheckBox.isSelected()) {
                         viewedCollection = Collection.retrieveByName((String) collectionsComboBox.getSelectedItem());
                     }
 
-
+                    
                     //Populate the Plasmid tab is below
                     ArrayList<ObjBase> allPlasmids = null;
                     if (restrictToUserCheckBox.isSelected()) {
@@ -636,7 +725,7 @@ private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN
                             if (e.getClickCount() == 2) {
                                 try {
                                     Part apart = Part.retrieveByName((String) partsTable.getValueAt(partsTable.getSelectedRow(), 0));
-                                    apart.launchDefaultViewer();
+//                                    apart.launchDefaultViewer();
                                 } catch (Exception ex) {
                                 }
                             }
