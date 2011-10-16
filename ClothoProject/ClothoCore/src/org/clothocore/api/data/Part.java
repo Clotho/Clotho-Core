@@ -22,22 +22,28 @@ ENHANCEMENTS, OR MODIFICATIONS..
  */
 package org.clothocore.api.data;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.clothocore.api.core.Collector;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import org.clothocore.api.dnd.RefreshEvent;
 import org.clothocore.api.plugin.ClothoConnection;
 import org.clothocore.api.plugin.ClothoConnection.ClothoQuery;
 import org.clothocore.core.Hub;
-import java.util.Iterator;
-import org.clothocore.api.data.Plasmid;
+import org.clothocore.api.plugin.ClothoConnection.ClothoCriterion;
+import org.openide.awt.StatusDisplayer;
 
 /**
  *
@@ -382,6 +388,84 @@ public class Part extends ObjBase {
         return allObjects;
     }
 
+    /**Generic method for disposing of an item that contains no dependencies.  If the item
+     * has dependencies, it retrieves those dependencies and throws them up in a jdialog menu
+     * from which the user can select and press delete to call disposeEverywhere on those
+     *
+     * @return = true if item was successfully deleted, false otherwise
+     */
+    @Override
+    public boolean deleteFromDatabase() {
+        String seq = this.getSeq().getSeq();
+        if (seq.charAt(0) != '%') {
+            seq = "%" + seq;
+        }
+        if (seq.charAt(seq.length() - 1) != '%') {
+            seq = seq + "%";
+        }
+        ClothoConnection c = Collector.getDefaultConnection();
+        ClothoQuery mainQuery = c.createQuery(ObjType.PART);
+        ArrayList<ObjBase> conflictList = new ArrayList<ObjBase>();
+        ClothoQuery sequenceQuery = mainQuery.createAssociationQuery(Part.Fields.SEQUENCE);
+        ClothoCriterion crit1 = sequenceQuery.getMatchesCrit(NucSeq.Fields.SEQUENCE, seq);
+        sequenceQuery.add(crit1);
+        //perform a sequence query for this part's sequence
+        //Any part containing the sequence of this part may be a compositie containing this part
+        List results = mainQuery.getResults();
+        for (Object obj : results) {
+            Part apart = (Part) obj;
+            if (apart.getComposition().contains(this.getUUID()));
+            conflictList.add(apart);
+        }
+        List<ObjBase> plasmids = this.getPlasmids();
+        conflictList.addAll(plasmids);
+        //If the list of conflicts isn't empty, throw up a list of objects that depend on this part and offer to delete those objects
+        if (!conflictList.isEmpty()) {
+            Object[] params = new Object[2];
+            JCheckBox[] checks = new JCheckBox[conflictList.size()];
+            Box abox = new Box(BoxLayout.Y_AXIS);
+            JScrollPane scroller = new JScrollPane();
+            scroller.setViewportView(abox);
+            scroller.setPreferredSize(new Dimension(200, 400));
+            for (int i = 0; i < conflictList.size(); i++) {
+                ObjBase obj = conflictList.get(i);
+                String displaytext = obj.toString();
+                checks[i] = new JCheckBox(obj.getType().toString() + ": " + displaytext.substring(0, Math.min(displaytext.length(), 35)));
+                checks[i].setSelected(true);
+                abox.add(checks[i]);
+            }
+
+            String message = "There are Clotho objects that depend on this part. Do you want to delete these other objects as well?";
+            params[0] = message;
+            params[1] = scroller;
+            int n = JOptionPane.showConfirmDialog(null, params, "Delete selected objects", JOptionPane.OK_CANCEL_OPTION);
+            if (n == 0) {
+                StatusDisplayer.getDefault().setStatusText("Deleting objects");
+                for (int i = 0; i < checks.length; i++) {
+                    if (checks[i].isSelected()) {
+                        //delete everything that is checked
+                        conflictList.get(i).deleteFromDatabase();
+                    }
+                }
+            } else {
+                StatusDisplayer.getDefault().setStatusText("Couldn't delete part " + this.getName() + " because other Clotho objects depend on this part");
+                return false;
+            }
+
+
+        }
+        if (Hub.defaultConnection.delete(this)) {
+            //if conflicts are resolved delete the part and it's nucseq
+            this._inDatabase = false;
+            this.setTransient();
+            NucSeq nseq = this.getSeq();
+            nseq.deleteFromDatabase();
+            nseq.setTransient();
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Recursively save all child elements and then call ObjBase to save itself.
      */
@@ -423,9 +507,9 @@ public class Part extends ObjBase {
             }
         }
 
-        if(!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
-            if(!Collector.getCurrentUser().isAdmin()) {
-                    System.out.println( "Current user "+this.getAuthor().getDisplayName()+ " does not have permission to modify "+this.getName() );
+        if (!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
+            if (!Collector.getCurrentUser().isAdmin()) {
+                System.out.println("Current user " + this.getAuthor().getDisplayName() + " does not have permission to modify " + this.getName());
                 return false;
             }
         }
@@ -561,19 +645,6 @@ public class Part extends ObjBase {
     /* GETTERS
      * */
     public List<ObjBase> getPlasmids() {
-//        ArrayList<Plasmid> out = new ArrayList<Plasmid>();
-//        ArrayList<Plasmid> allPlas = Collector.getAll(ObjType.PLASMID);
-//
-//        Iterator<Plasmid> plasIter = allPlas.iterator();
-//        while (plasIter.hasNext()) {
-//            Plasmid P = plasIter.next();
-//            if (P.getPart().getUUID() == this.getUUID()) {
-//                out.add(P);
-//            }
-//        }
-//
-//
-//        return out;
         ClothoConnection c = Collector.getDefaultConnection();
         ClothoQuery mainQuery = c.createQuery(ObjType.PLASMID);
         ClothoQuery partQuery = mainQuery.createAssociationQuery(Plasmid.Fields.PART);
