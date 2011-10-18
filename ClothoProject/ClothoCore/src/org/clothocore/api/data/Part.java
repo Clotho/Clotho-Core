@@ -396,6 +396,12 @@ public class Part extends ObjBase {
      */
     @Override
     public boolean deleteFromDatabase() {
+        if (!Collector.getCurrentUser().getUUID().equals(this.getAuthor().getUUID())) {
+            if (!Collector.getCurrentUser().isAdmin()) {
+                System.out.println("Current user " + this.getAuthor().getDisplayName() + " does not have permission to modify " + this.getName());
+                return false;
+            }
+        }
         String seq = this.getSeq().getSeq();
         if (seq.charAt(0) != '%') {
             seq = "%" + seq;
