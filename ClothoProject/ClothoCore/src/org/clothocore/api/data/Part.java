@@ -402,19 +402,12 @@ public class Part extends ObjBase {
                 return false;
             }
         }
-        String seq = this.getSeq().getSeq();
-        if (seq.charAt(0) != '%') {
-            seq = "%" + seq;
-        }
-        if (seq.charAt(seq.length() - 1) != '%') {
-            seq = seq + "%";
-        }
+
         ClothoConnection c = Collector.getDefaultConnection();
         ClothoQuery mainQuery = c.createQuery(ObjType.PART);
+
         ArrayList<ObjBase> conflictList = new ArrayList<ObjBase>();
-        ClothoQuery sequenceQuery = mainQuery.createAssociationQuery(Part.Fields.SEQUENCE);
-        ClothoCriterion crit1 = sequenceQuery.getMatchesCrit(NucSeq.Fields.SEQUENCE, seq);
-        sequenceQuery.add(crit1);
+
         //perform a sequence query for this part's sequence
         //Any part containing the sequence of this part may be a compositie containing this part
         List results = mainQuery.getResults();

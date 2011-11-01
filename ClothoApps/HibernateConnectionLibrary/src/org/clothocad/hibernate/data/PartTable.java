@@ -250,7 +250,15 @@ public class PartTable implements java.io.Serializable, hibernateDatum {
     public String getIdPart() {
         return this.idPart;
     }
+public String findParentPart( String child_id ) {
+    for ( CompositeXref xref:compositeXrefsForChildPart) {
+        if ( xref.getPartTableByChildPart().idPart == child_id ) {
+            return xref.getPartTableByChildPart().idPart; 
+        }
+    }
+            return null;
 
+}
     public void setIdPart( String idPart ) {
         this.idPart = idPart;
     }
